@@ -15,16 +15,22 @@ const positionStore = defineStore(
     }
 
     async function init() {
-      if (!position.value.authorized) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          const userPosition = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
+      return new Promise<void>((resolve) => {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userPosition = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            };
 
-          set({ authorized: true, current: userPosition });
-        });
-      }
+            set({ authorized: true, current: userPosition });
+            resolve();
+          },
+          (error) => {
+            set({ authorized: false, current: undefined });
+          }
+        );
+      });
     }
 
     function clean() {
