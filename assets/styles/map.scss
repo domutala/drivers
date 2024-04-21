@@ -1,0 +1,15 @@
+.leaflet-control-attribution {
+  display: none;
+}
+
+[href="https://www.maptiler.com"]
+{
+  display: none;
+}
+
+.leaflet-routing-container {
+  position: fixed;
+  top: -15000px;
+  left: -15000px;
+  z-index: -1;
+}

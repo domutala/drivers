@@ -1,16 +1,43 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  devtools: { enabled: false },
+  runtimeConfig: {
+    public: {
+      cmsUrl: "",
+    },
+  },
   ssr: false,
 
-  devtools: { enabled: false },
+  app: {
+    head: {
+      title: "Stream",
+      meta: [{ name: "description", content: "Films et séries" }],
+    },
+  },
 
   modules: [
+    "vuetify-nuxt-module",
     "@pinia/nuxt",
     "@pinia-plugin-persistedstate/nuxt",
-    "vuetify-nuxt-module",
+    "@nuxtjs/svg-sprite",
+    "@vite-pwa/nuxt",
   ],
 
-  css: ["leaflet/dist/leaflet.css", "~/assets/styles/main.scss"],
+  plugins: ["~/plugins/map.ts"],
 
-  plugins: ["~/plugins/map"],
+  components: [{ path: "~/components/ui", global: true, prefix: "ui" }],
+
+  css: [
+    "animate.css/animate.min.css",
+    "@flaticon/flaticon-uicons/css/all/all.css",
+    "~/assets/styles/main.scss",
+  ],
+
+  pwa: {
+    manifest: {
+      name: "Stream",
+      short_name: "Stream",
+      theme_color: "#ff9d00",
+    },
+  },
 });
