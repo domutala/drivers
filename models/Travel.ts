@@ -5,12 +5,19 @@ export interface ITravel {
   price: number;
   step:
     | "define_route"
-    | "driver_search"
+    | "search_driver"
     | "await_driver"
     | "on_the_way"
     | "cancel";
 
-  accepts: { price: number; id: string; distance: number; time: number }[];
+  accepts: {
+    price: number;
+    id: string;
+    distance: number;
+    time: number;
+    position: { lat: number; lng: number };
+    accepted: boolean;
+  }[];
   from: { lat: number; lng: number };
   to: { lat: number; lng: number };
 }

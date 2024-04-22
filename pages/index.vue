@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import pgTravel from "~/components/travel.vue";
+import pgTravel from "~/components/travel/index.vue";
 import pgDrive from "~/components/drive.vue";
 </script>
 

@@ -1,15 +1,13 @@
 <script lang="ts" setup>
 import L from "leaflet";
-
-import "leaflet/dist/leaflet.css";
-import "@maptiler/leaflet-maptilersdk";
-import "leaflet-routing-machine";
 import type { ITravel } from "~/models/Travel";
-const { $map } = useNuxtApp();
 
-const mapContainer = ref<HTMLElement>();
+const props = defineProps({
+  map: { type: Object as PropType<L.Map>, required: true },
+});
+const { $map } = useNuxtApp();
 const marker = ref<L.Marker>();
-const map = ref<L.Map>();
+const curentPositionMarker = ref<L.Marker>();
 const route = ref<L.Routing.Control>();
 const hideBottom = ref(false);
 const routing = ref(false);
@@ -17,59 +15,54 @@ const initing = ref(false);
 
 onMounted(mounted);
 function mounted() {
-  if (!mapContainer.value) return;
-  map.value = $map.init(mapContainer.value);
-
-  L.marker(Store.position.position.current!, {
+  curentPositionMarker.value = L.marker(Store.position.position.current!, {
     draggable: false,
     icon: L.divIcon({
       html: $map.icons.point,
       className: "",
       iconSize: [24, 24],
     }),
-  }).addTo(map.value);
+  }).addTo(props.map);
 
   marker.value = L.marker(Store.position.position.current, {
     draggable: false,
     opacity: 0,
     icon: L.divIcon({
       html: $map.icons.point,
-      className: "pg-home-marker-mobile",
+      className: "travel-define-route--home-marker-mobile",
       iconSize: [24, 24],
     }),
-  }).addTo(map.value);
+  }).addTo(props.map);
 
-  map.value.on("drag", () => {
-    if (Store.travel.current?.step !== "define_route") return;
-    marker.value!.setLatLng(map.value!.getCenter());
-  });
-  map.value.on("dragstart", () => marker.value!.setOpacity(1));
-  map.value.on("dragend", () => marker.value!.setOpacity(0));
+  props.map.on("drag", () => marker.value!.setLatLng(props.map!.getCenter()));
+  props.map.on("dragstart", () => marker.value!.setOpacity(1));
+  props.map.on("dragend", () => marker.value!.setOpacity(0));
 
-  map.value.on("dragstart", () => (hideBottom.value = true));
-  map.value.on("dragend", () => (hideBottom.value = false));
+  props.map.on("dragstart", () => (hideBottom.value = true));
+  props.map.on("dragend", () => (hideBottom.value = false));
 
-  map.value.on("dragend", initRoute);
+  props.map.on("dragend", initRoute);
+
+  if (Store.travel.current) initRoute();
 }
 
 function toCenter() {
-  if (!map.value) return;
+  if (!props.map) return;
   if (!marker.value) return;
 
-  map.value.setZoom(16);
-  map.value.setView(Store.position.position.current!);
-  if (Store.travel.current?.step !== "define_route") return;
+  props.map.setZoom(16);
+  props.map.setView(Store.position.position.current!);
 
-  if (route.value) map.value.removeControl(route.value);
+  if (route.value) props.map.removeControl(route.value);
   route.value = undefined;
   marker.value.setLatLng(Store.position.position.current!);
 }
 
 function initRoute() {
-  if (!map.value) return;
+  if (!props.map) return;
   if (!route.value) {
     const departure = L.latLng(Store.position.position.current);
-    const arrival = L.latLng(map.value.getCenter());
+    const arrival = L.latLng(Store.travel.current?.to || props.map.getCenter());
 
     route.value = L.Routing.control({
       waypoints: [departure, arrival],
@@ -100,7 +93,7 @@ function initRoute() {
       createStep() {
         return null;
       },
-    } as any).addTo(map.value);
+    } as any).addTo(props.map);
 
     route.value.on("routingstart", () => (routing.value = true));
     route.value.on("routesfound", () => (routing.value = false));
@@ -134,12 +127,11 @@ function initRoute() {
 }
 
 function updateWaypoint() {
-  if (Store.travel.current?.step !== "define_route") return;
   if (!route.value) return;
-  if (!map.value) return;
+  if (!props.map) return;
 
   const departure = L.latLng(Store.position.position.current);
-  const arrival = L.latLng(map.value.getCenter());
+  const arrival = L.latLng(props.map.getCenter());
 
   route.value.setWaypoints([departure, arrival]);
 }
@@ -148,49 +140,31 @@ async function findDriver() {
   if (!Store.travel.current) return;
 
   const travel = await Socket.emit<ITravel>(
-    "travel:find-driver",
+    "travel:search-driver",
     Store.travel.current
   );
 
   Store.travel.setCurrent(travel);
 }
 
-onMounted(onAccept);
-function onAccept() {
-  Socket.socket.on("travel:accept", (data: any) => {
-    if (Store.travel.current?.step === "await_driver") {
-      Store.travel.pushAccept(data);
+onBeforeUnmount(destroy);
+onDeactivated(destroy);
+function destroy() {
+  if (route.value) {
+    props.map.removeControl(route.value);
+    route.value = undefined;
+  }
+  if (marker.value) marker.value.remove();
+  if (curentPositionMarker.value) curentPositionMarker.value.remove();
 
-      setTimeout(() => {
-        Store.travel.removeAccept(data.id);
-      }, 6000);
-    }
-  });
-}
-
-async function accept(offer: any) {
-  if (!Store.travel.current) return;
-
-  const travel = await Socket.emit<ITravel>("travel:accept-driver", {
-    id: Store.travel.current.id,
-    offer: offer.id,
-  });
-
-  Store.travel.setCurrent(travel);
+  props.map.off("drag");
+  props.map.off("dragstart");
+  props.map.off("dragend");
 }
 </script>
 
 <template>
-  <div style="position: fixed; width: 100%; height: 100%">
-    <div
-      ref="mapContainer"
-      id="map"
-      style="position: absolute; width: 100%; height: 100%"
-    ></div>
-  </div>
-
   <div
-    v-if="!Store.travel.current || Store.travel.current.step === 'define_route'"
     style="
       position: fixed;
       top: 40px;
@@ -227,12 +201,9 @@ async function accept(offer: any) {
     <div
       v-if="Store.travel.current"
       v-show="!initing && !routing"
-      class="pg-bottom"
+      class="travel-define-route--bottom"
     >
-      <div
-        class="bg-background"
-        v-if="Store.travel.current.step === 'define_route'"
-      >
+      <div class="bg-background">
         <div class="border-b pa-2 d-flex align-center justify-center ga-2">
           <i class="fi fi-rr-route text-primary"></i>
           {{ Num.formatDistance(Store.travel.current.distance) }}
@@ -294,34 +265,6 @@ async function accept(offer: any) {
           </div>
         </div>
       </div>
-
-      <div
-        v-else-if="Store.travel.current.step === 'await_driver'"
-        class="bg-background"
-      >
-        <div
-          v-for="offer in Store.travel.current.accepts || []"
-          :key="offer.id"
-          class="d-flex align-center pa-3 ga-2"
-        >
-          <v-avatar size="42">
-            <v-icon size="42" icon="mdi-account-circle" />
-          </v-avatar>
-          <div style="line-height: 1">
-            <div style="font-weight: bold">{{ "Driver Name" }}</div>
-            <div class="mt-1">
-              {{ "Car model" }} - {{ Num.formatDuration(offer.time) }}
-            </div>
-          </div>
-
-          <div class="ml-auto" style="font-weight: bold">
-            <span style="opacity: 0.5">MAD</span>
-            {{ offer.price }}
-          </div>
-
-          <v-btn rounded="lg" @click="accept(offer)">accept</v-btn>
-        </div>
-      </div>
     </div>
   </transition>
 
@@ -347,7 +290,7 @@ async function accept(offer: any) {
 </template>
 
 <style lang="scss" scoped>
-.pg-bottom {
+.travel-define-route--bottom {
   position: absolute;
   left: 0;
   bottom: 0;
@@ -375,7 +318,7 @@ async function accept(offer: any) {
 </style>
 
 <style lang="scss">
-.pg-summary-price-input {
+.travel-define-route--summary-price-input {
   .v-field {
     padding-left: 4px;
     padding-right: 4px;
@@ -387,7 +330,7 @@ async function accept(offer: any) {
   }
 }
 
-.pg-home-marker-mobile {
+.travel-define-route--home-marker-mobile {
   --v-theme-primary: 0, 0, 0;
 }
 </style>

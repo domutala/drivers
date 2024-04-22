@@ -68,6 +68,7 @@ function onTravel(travel: ITravel) {
           price: travel.price,
           distance: _route.summary.totalDistance,
           time: _route.summary.totalTime,
+          position: Store.position.position.current,
         } as any,
       ];
 
