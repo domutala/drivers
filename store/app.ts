@@ -9,7 +9,7 @@ const useAppStore = defineStore(
       mode.value = value;
     }
 
-    const theme = ref<"dark" | "light" | null>("dark");
+    const theme = ref<"dark" | "light" | null>(null);
     function setTheme(value: "dark" | "light" | null) {
       theme.value = value;
 

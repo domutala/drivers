@@ -8,20 +8,47 @@ const travelStore = defineStore(
     function setCurrent(value: ITravel) {
       current.value = value;
     }
-    function pushAccept(value: ITravel) {
+    function getAccept(id: string) {
+      if (!current.value) return;
+
+      const i = current.value.accepts.findIndex((v) => v.id === id);
+      if (i !== -1) return { accept: current.value.accepts[i], index: i };
+
+      return;
+    }
+    function pushAccept(value: any) {
       if (!current.value) return;
 
       current.value.accepts ||= [];
+      value.awaitTime = 0;
 
       const i = current.value.accepts.findIndex((v) => v.id === value.id);
       if (i === -1) current.value.accepts.push(value) - 1;
       else current.value.accepts[i] = value;
+
+      runAwait();
+      function runAwait() {
+        setTimeout(() => {
+          const accept = getAccept(value.id);
+          if (!accept) return;
+
+          accept.accept.awaitTime++;
+          pushAccept(accept.accept);
+
+          if (accept.accept.awaitTime >= 30) return;
+          runAwait();
+        }, 1000);
+      }
     }
     function removeAccept(id: string) {
       if (!current.value) return;
 
       const i = current.value.accepts.findIndex((v) => v.id === id);
       if (i !== -1) current.value.accepts.splice(i, 1);
+    }
+    function cleanAccept() {
+      if (!current.value) return;
+      current.value.accepts = [];
     }
 
     const currents = ref<ITravel[]>([]);
@@ -57,6 +84,7 @@ const travelStore = defineStore(
       setCurrent,
       pushAccept,
       removeAccept,
+      cleanAccept,
 
       currents,
       pushCurrents,

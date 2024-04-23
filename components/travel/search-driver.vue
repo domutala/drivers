@@ -46,10 +46,11 @@ function toCenter() {
 onMounted(onAccept);
 function onAccept() {
   Socket.socket.on("travel:accept", (data: any) => {
-    if (Store.travel.current?.step === "await_driver") {
+    if (Store.travel.current?.step === "search_driver") {
       Store.travel.pushAccept(data);
 
       setTimeout(() => {
+        if (Store.travel.current?.step !== "search_driver") return;
         Store.travel.removeAccept(data.id);
       }, 6000);
     }
@@ -90,7 +91,7 @@ function destroy() {
   >
     <div
       v-if="Store.travel.current"
-      v-show="!accepting"
+      v-show="!accepting && !hideBottom"
       class="travel-search-driver--bottom"
     >
       <div class="bg-background">
@@ -114,7 +115,27 @@ function destroy() {
             {{ offer.price }}
           </div>
 
-          <v-btn rounded="lg" @click="accept(offer)">accept</v-btn>
+          <v-btn rounded="lg" @click="accept(offer)">
+            {{ offer.awaitTime }}
+            accept
+          </v-btn>
+        </div>
+
+        <div
+          class="pa-5 bg-background d-flex"
+          style="position: sticky; bottom: 0; z-index: 100"
+        >
+          <v-progress-linear
+            indeterminate
+            :height="12"
+            rounded
+            rounded-bar
+            stream
+            striped
+            color="primary"
+            bg-color="light"
+            style="width: 200px"
+          />
         </div>
       </div>
     </div>
@@ -128,16 +149,6 @@ function destroy() {
       :size="32"
       :width="5"
     />
-    <v-btn
-      v-else
-      icon
-      @click="toCenter"
-      color="background"
-      variant="elevated"
-      class="border"
-    >
-      <i class="fi fi-rr-location-crosshairs" style="font-size: 22px"></i>
-    </v-btn>
   </div>
 </template>
 
@@ -158,6 +169,9 @@ function destroy() {
     margin-bottom: 0px;
     width: 500px;
     max-width: 100%;
+    overflow: auto;
+    max-height: 70lvh;
+    position: relative;
 
     @media (width> 500px) {
       border-top-right-radius: 0.9em;

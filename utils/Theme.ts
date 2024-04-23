@@ -5,6 +5,7 @@ import {
   type ColorParameters,
   NavigationBar,
 } from "@hugotomazi/capacitor-navigation-bar";
+import { Keyboard, KeyboardStyle, KeyboardResize } from "@capacitor/keyboard";
 
 function nativeThemeMode(): "dark" | "light" {
   let nativeThemeMode: "dark" | "light" = "dark";
@@ -74,6 +75,13 @@ function update() {
           darkButtons: Color.getBrightness(color) === "light",
         };
         await NavigationBar.setColor(colorOptions);
+
+        // await Keyboard.setStyle({
+        //   style:
+        //     Color.getBrightness(color) === "light"
+        //       ? KeyboardStyle.Light
+        //       : KeyboardStyle.Dark,
+        // });
 
         dispatchEvent(new CustomEvent("theme:update"));
 

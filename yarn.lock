@@ -1071,10 +1071,20 @@
   resolved "https://registry.yarnpkg.com/@capacitor/geolocation/-/geolocation-6.0.0.tgz#f4926033bfeb074cfd947f6541d2101d5c3417f7"
   integrity sha512-8wrZe6gqfZmsCdvOvrqmezi2Pa8Nz6bQUFbDWsjUKHRzs+qreYNXngzhgKO83GEhHvodiJMnoDJrD2JeQt7FZg==
 
+"@capacitor/keyboard@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/keyboard/-/keyboard-6.0.0.tgz#9a09244f0c9cadaf5339b61040cb81e1ceccdfbb"
+  integrity sha512-pPX/PQWWjw5ce47kHEYv6IWlHzuhAxgXihqEAAAGLdwK3u3srgGWCljXrYS9juVBPi/lA1uK7UaUzYI0XrgxVQ==
+
 "@capacitor/screen-orientation@^5.0.7":
   version "5.0.7"
   resolved "https://registry.yarnpkg.com/@capacitor/screen-orientation/-/screen-orientation-5.0.7.tgz#cdcf6b40508205594c8b5ac109bd1c80888ab6ae"
   integrity sha512-2HKWCfaz34IDpNyznr6RbnxxZ5lADA9AQJtH6TBKcd1VJm8MOvicc43zDMdg2p7qAdw9ZkvP4fYK9/MZEFwIHg==
+
+"@capacitor/splash-screen@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/splash-screen/-/splash-screen-6.0.0.tgz#15a66cb27f9b99076845113188cead77ad1c0864"
+  integrity sha512-ZGgbT1j6opz1xCnMHnERnBd33aQTuepOXuDHMiKgZGlOluviBFOyOcnMnWjEwavg8PSiYSPSmVSwjxW7L6mXsg==
 
 "@capacitor/status-bar@github:ramlan442/capacitor-status-bar-height":
   version "4.0.1"

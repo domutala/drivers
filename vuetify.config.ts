@@ -2,8 +2,9 @@
 import type { ExternalVuetifyOptions } from "vuetify-nuxt-module";
 import colors from "vuetify/util/colors";
 
-const primaryColor = "#2365ff";
-const secondaryColor = "#393938";
+// const primaryColor = "#1fff62";
+const primaryColor = "#ff8b1f";
+const secondaryColor = "#ffff0000";
 
 export default {
   theme: {

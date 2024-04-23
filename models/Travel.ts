@@ -17,6 +17,7 @@ export interface ITravel {
     time: number;
     position: { lat: number; lng: number };
     accepted: boolean;
+    awaitTime: number;
   }[];
   from: { lat: number; lng: number };
   to: { lat: number; lng: number };

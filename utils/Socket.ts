@@ -25,7 +25,7 @@ function decrypter(obj?: { [key: string]: any }) {
 }
 
 const Socket = {
-  socket: io("http://localhost:8073"),
+  socket: io(import.meta.env.VITE_API_URL),
   connect() {
     return new Promise<void>((resolve, reject) => {
       if (this.socket.connected) return resolve();
