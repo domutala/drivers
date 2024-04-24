@@ -6,14 +6,6 @@ import pgDrive from "~/components/drive.vue";
 <template>
   <pg-travel v-if="Store.app.mode === 'traveller'" />
   <pg-drive v-else />
-  <div
-    style="
-      position: fixed;
-      top: 100%;
-      width: 100%;
-      z-index: 999;
-      box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-      height: 20px;
-    "
-  ></div>
+
+  <nuxt-page />
 </template>

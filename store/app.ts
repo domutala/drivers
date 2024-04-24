@@ -1,3 +1,5 @@
+import { Capacitor } from "@capacitor/core";
+import { StatusBar } from "@capacitor/status-bar";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
@@ -10,6 +12,7 @@ const useAppStore = defineStore(
     }
 
     const theme = ref<"dark" | "light" | null>(null);
+    const usedTheme = ref<"dark" | "light">("dark");
     function setTheme(value: "dark" | "light" | null) {
       theme.value = value;
 
@@ -25,6 +28,7 @@ const useAppStore = defineStore(
       }
 
       setTimeout(() => {
+        usedTheme.value = _theme;
         dispatchEvent(new CustomEvent("theme:change", { detail: _theme }));
       }, 100);
     }
@@ -35,6 +39,12 @@ const useAppStore = defineStore(
     }
 
     async function init() {
+      if (Capacitor.getPlatform() !== "web") {
+        const infos = await StatusBar.getInfo();
+        Store.app.setStatusBar({ height: (infos as any).height });
+        // await ScreenOrientation.lock({ orientation: "portrait" });
+      }
+
       // const response = await fetch("https://ipinfo.io/json");
       // const data = await response.json();
       // country.value = (data.country as string).toUpperCase();
@@ -43,6 +53,7 @@ const useAppStore = defineStore(
     return {
       theme,
       setTheme,
+      usedTheme,
 
       statusBar,
       setStatusBar,

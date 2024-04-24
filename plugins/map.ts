@@ -19,6 +19,20 @@ export default defineNuxtPlugin({
         </style>
       </svg>`,
 
+      spin2: `
+      <svg viewBox="0 0 682.667 682.667">
+        <g>
+          <g transform="matrix(1.33333 0 0 -1.33333 0 682.667)">
+            <path
+              d="M0 0c0-64.069-51.938-116.007-116.007-116.007-64.068 0-116.007 51.938-116.007 116.007s51.939 116.007 116.007 116.007C-51.938 116.007 0 64.069 0 0Z"
+              stroke="#000" fill="rgb(var(--v-theme-primary))" transform="translate(372.007 380.993)" stroke-width="30" />
+            <path d="M0 0v-249.986" stroke="#000" stroke-width="30" style="stroke-linecap:round;"
+              transform="translate(256 264.986)" />
+          </g>
+        </g>
+      </svg>
+      `,
+
       point: `<svg class="map-icon-point" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512.002 512.002" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><circle cx="256.001" cy="256.001" r="200" style="fill-rule:evenodd;clip-rule:evenodd;" transform="rotate(-45.001 256 256.005)"></circle><circle cx="256.001" cy="256.001" r="246.001" style="fill-rule:evenodd;clip-rule:evenodd;stroke-width:20.0001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256;" transform="rotate(-45.001 256 256.005)" fill-rule="evenodd" clip-rule="evenodd" fill="none" class="map-icon-point-stroke" stroke-width="20.0001" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="22.9256"></circle></g>
       
         <style>

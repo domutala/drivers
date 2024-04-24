@@ -7,13 +7,30 @@ const isMenuOpen = ref(false);
     @click="isMenuOpen = true"
     icon
     color="background"
-    style="position: fixed; top: 0; left: 15px; z-index: 2500"
+    class="elevation-5"
+    style="position: fixed; top: 0; left: 15px; z-index: 550"
     :style="{ top: `${10 + Store.app.statusBar.height}px` }"
   >
     <i class="fi fi-br-menu-burger"></i>
   </v-btn>
 
+  <div
+    v-if="isMenuOpen"
+    style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 550;
+      opacity: 0.3;
+    "
+    class="bg-background"
+    @click="isMenuOpen = false"
+  ></div>
+
   <v-navigation-drawer
+    absolute
     temporary
     v-model="isMenuOpen"
     color="background"
@@ -22,7 +39,7 @@ const isMenuOpen = ref(false);
     :style="{
       paddingTop: `${Store.app.statusBar.height}px`,
       maxWidth: '90%',
-      zIndex: 2800,
+      zIndex: 1004,
     }"
   >
     <v-list-item
@@ -87,19 +104,4 @@ const isMenuOpen = ref(false);
       </div>
     </template>
   </v-navigation-drawer>
-
-  <div
-    v-if="isMenuOpen"
-    style="
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1003;
-      opacity: 0.6;
-    "
-    class="bg-black"
-    @click="isMenuOpen = false"
-  ></div>
 </template>

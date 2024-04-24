@@ -1,0 +1,46 @@
+.mapbox-marker-point {
+  position: relative;
+  width: 10px;
+  height: 10px;
+
+  > div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .mapbox-marker-point--circle {
+    background-color: rgba(var(--v-theme-primary));
+    border: 5px solid #fff;
+    border-radius: 100%;
+    width: 30px;
+    height: 30px;
+  }
+
+  .mapbox-marker-point--radial {
+    width: 100px;
+    height: 100px;
+    transform-origin: center;
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(var(--v-theme-primary), 0.2);
+      border-radius: 100%;
+      animation: marker-point-animation 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes marker-point-animation {
+      0% {
+        transform: scale(1);
+      }
+      100% {
+        transform: scale(1.2);
+      }
+    }
+  }
+}

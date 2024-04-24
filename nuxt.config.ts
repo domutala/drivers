@@ -1,19 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
-  runtimeConfig: {
-    public: {
-      cmsUrl: "",
-    },
-  },
-  ssr: false,
 
-  app: {
-    head: {
-      title: "Stream",
-      meta: [{ name: "description", content: "Films et séries" }],
-    },
-  },
+  ssr: false,
 
   modules: [
     "vuetify-nuxt-module",
@@ -23,7 +12,7 @@ export default defineNuxtConfig({
     "@vite-pwa/nuxt",
   ],
 
-  plugins: ["~/plugins/map.ts"],
+  plugins: ["~/plugins/map.ts", "~/plugins/mapbox.ts"],
 
   components: [{ path: "~/components/ui", global: true, prefix: "ui" }],
 
