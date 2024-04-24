@@ -44,6 +44,7 @@ const Socket = {
 
     return new Promise<T>((resolve, reject) => {
       this.socket.emit(event, data, (response: any) => {
+        if (response === "__ERROR__") throw "Error";
         response = decrypter(response);
         resolve(response);
       });

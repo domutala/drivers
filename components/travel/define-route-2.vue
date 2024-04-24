@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import mapboxgl from "mapbox-gl";
-import * as turf from "@turf/turf";
 import cNavbar from "~/components/navbar.vue";
 import trvlSearchPlaces from "./search-places.vue";
 
@@ -20,11 +19,15 @@ const travel = ref<{
   coordinates: [number, number][];
   distance: number;
   duration: number;
+  price: { amount: number; currency: string };
+  bounds: [[number, number], [number, number]];
 }>({
   points: { departure: undefined, destination: undefined },
   coordinates: [],
   distance: 0,
   duration: 0,
+  price: { amount: 0, currency: "MAD" },
+  bounds: [] as any,
 });
 const pointEdit = ref<string>();
 const map = ref<mapboxgl.Map>();
@@ -165,13 +168,7 @@ async function setDestination(point: {
     const el = document.querySelector("#trvl-distantion-marker") as HTMLElement;
     travel.value.points.destination = {
       meta: { name: point.name, place: point.place },
-      marker: new mapboxgl.Marker({
-        element: el,
-        anchor: "bottom",
-
-        // color: "red",
-        // rotation: 15,
-      })
+      marker: new mapboxgl.Marker({ element: el, anchor: "bottom" })
         .setLngLat({ lat: point.lat, lng: point.lng })
         .addTo(map.value)
         .on("dragend", () => {
@@ -198,21 +195,10 @@ async function buildRoute() {
   routing.value = true;
 
   try {
-    const route = await $mapbox.route({
+    const routes = await $mapbox.route({
       departure: travel.value.points.departure.marker.getLngLat(),
       destination: travel.value.points.destination.marker.getLngLat(),
     });
-
-    const geojson = {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          properties: {},
-          geometry: route.routes[0].geometry,
-        },
-      ],
-    };
 
     if (map.value.getLayer("line")) map.value.removeLayer("line");
     if (map.value.getSource("line")) map.value.removeSource("line");
@@ -220,26 +206,21 @@ async function buildRoute() {
     map.value.addSource("line", {
       type: "geojson",
       lineMetrics: true,
-      data: geojson as any,
+      data: routes[0].geojson as any,
     });
-    // the layer must be of type 'line'
     map.value.addLayer({
       type: "line",
       source: "line",
       id: "line",
-      paint: {
-        "line-color": "#1fff62",
-        "line-width": 4,
-      },
-      layout: {
-        "line-cap": "round",
-        "line-join": "round",
-      },
+      paint: { "line-color": "#1fff62", "line-width": 4 },
+      layout: { "line-cap": "round", "line-join": "round" },
     });
 
-    travel.value.coordinates = route.routes[0].geometry.coordinates;
-    travel.value.distance = route.routes[0].distance;
-    travel.value.duration = route.routes[0].duration;
+    travel.value.coordinates = routes[0].meta.coordinates;
+    travel.value.distance = routes[0].meta.distance;
+    travel.value.duration = routes[0].meta.duration;
+    travel.value.price = routes[0].meta.price;
+    travel.value.bounds = routes[0].meta.bounds;
   } finally {
     routing.value = false;
   }
@@ -250,10 +231,8 @@ async function onPointEdit() {
   if (!map.value) return;
 
   if (!pointEdit.value) {
-    if (travel.value.coordinates.length) {
-      const line = turf.lineString(travel.value.coordinates);
-      const bbox = turf.bbox(line);
-      map.value.fitBounds(bbox, { padding: 100 });
+    if (travel.value.bounds.length) {
+      map.value.fitBounds(travel.value.bounds, { padding: 100 });
     }
     return;
   }
@@ -296,7 +275,6 @@ function onPlace(mapbox_id: string) {
     <div id="map"></div>
 
     <div class="trvl-search-places-bottom">
-      {{}}
       <!-- <transition
         apper
         enter-active-class="animate__animated animate__slideInUp"
@@ -446,7 +424,8 @@ function onPlace(mapbox_id: string) {
             </div>
             <div class="d-flex align-center ga-3 px-3 py-1 border-t">
               <i class="fi fi-rr-ticket" style="opacity: 0.7"></i>
-              35 MAD
+              {{ travel.price.amount }}
+              {{ travel.price.currency }}
             </div>
           </div>
           <div
