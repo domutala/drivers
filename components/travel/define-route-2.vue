@@ -105,6 +105,9 @@ function onEnddrag() {
   if (!travel.value.points[pointEdit.value]) return;
   if (!map.value) return;
 
+  // if(pointEdit.value === 'destination') setDestination()
+  // else setDeparture()
+
   buildRoute();
 }
 
@@ -163,7 +166,6 @@ async function setDestination(point: {
   place: string;
 }) {
   if (!map.value) return;
-
   if (!travel.value.points.destination) {
     const el = document.querySelector("#trvl-distantion-marker") as HTMLElement;
     travel.value.points.destination = {
@@ -180,6 +182,10 @@ async function setDestination(point: {
     };
   }
 
+  travel.value.points.destination.meta = {
+    name: point.name,
+    place: point.place,
+  };
   map.value.flyTo({
     animate: true,
     center: travel.value.points.destination.marker.getLngLat(),
@@ -413,7 +419,11 @@ function onPlace(mapbox_id: string) {
           >
             <v-progress-circular indeterminate size="22" />
           </div>
-          <div v-else-if="travel.coordinates.length" style="min-width: 110px">
+          <div
+            v-else-if="travel.coordinates.length"
+            style="min-width: 110px"
+            @click="pointEdit = 'destination'"
+          >
             <div class="d-flex align-center ga-3 px-3 py-1">
               <i class="fi fi-rr-stopwatch" style="opacity: 0.7"></i>
               {{ Num.formatDuration(travel.duration) }}

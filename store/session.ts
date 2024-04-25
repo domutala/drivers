@@ -20,6 +20,7 @@ const sessionStore = defineStore(
       const response = await Socket.emit("session-init", {
         publicKey: session.value.keys?.public,
         sokcet: Socket.socket.id,
+        position: Store.position.position.current,
       });
 
       set({
@@ -27,6 +28,9 @@ const sessionStore = defineStore(
         apiPublicKey: response.publicKey,
         user: response.user,
       });
+
+      Store.app.setAvailable(response.available);
+      Store.app.setDetails(response.details);
     }
 
     function clean() {

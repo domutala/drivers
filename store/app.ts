@@ -44,10 +44,16 @@ const useAppStore = defineStore(
         Store.app.setStatusBar({ height: (infos as any).height });
         // await ScreenOrientation.lock({ orientation: "portrait" });
       }
+    }
 
-      // const response = await fetch("https://ipinfo.io/json");
-      // const data = await response.json();
-      // country.value = (data.country as string).toUpperCase();
+    const available = ref(false);
+    function setAvailable(value: boolean) {
+      available.value = value;
+    }
+
+    const details = ref<{ [x: string]: any }>({});
+    function setDetails(value: { [x: string]: any }) {
+      details.value = value;
     }
 
     return {
@@ -60,6 +66,12 @@ const useAppStore = defineStore(
 
       mode,
       setMode,
+
+      available,
+      setAvailable,
+
+      details,
+      setDetails,
 
       init,
     };

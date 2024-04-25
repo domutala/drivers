@@ -18,9 +18,9 @@ const positionStore = defineStore(
     function set(value: Partial<IPosition>) {
       position.value = { ...position.value, ...value };
 
-      if (position.value.current) {
-        Socket.emit("session-my-position", position.value.current);
-      }
+      // if (position.value.current) {
+      //   Socket.emit("session-my-position", position.value.current);
+      // }
     }
 
     async function init() {

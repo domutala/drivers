@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { StatusBar } from "@capacitor/status-bar";
+import cPositionAsk from "~/components/position-ask.vue";
+import cNoAvailable from "~/components/no-available.vue";
 
 const theme = useTheme();
 const initing = ref(false);
-const { $router } = useNuxtApp();
+const { $router, $mapbox } = useNuxtApp();
 
-onMounted(async () => {
-  initing.value = true;
-
+async function step1() {
   addEventListener("theme:change", async (e: any) => {
     theme.global.name.value = e.detail;
     await Theme.update();
@@ -16,11 +16,24 @@ onMounted(async () => {
     await StatusBar.setOverlaysWebView({ overlay: true });
   });
   Theme.init();
-
   await Store.app.init();
-  await Store.session.init();
+}
+
+async function step2() {
   await Store.position.init();
-  // await Store.travel.init();
+}
+
+async function step3() {
+  await Store.session.init();
+}
+
+onMounted(async () => {
+  initing.value = true;
+
+  await step1();
+  await step2();
+  await step3();
+
   initing.value = false;
 });
 </script>
@@ -40,31 +53,8 @@ onMounted(async () => {
     >
       <v-progress-circular indeterminate :size="43" :width="5" />
     </div>
-    <div
-      v-else-if="!Store.position.position.authorized"
-      class="h-screen d-flex align-center justify-center"
-    >
-      <div class="text-center ma-auto" style="width: 80%; max-width: 600px">
-        <i
-          class="fi fi-sr-marker mx-auto"
-          style="font-size: 42px; width: max-content"
-        ></i>
-        <br />
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Impedit
-        commodi nisi veniam nulla, officia, quis, culpa laudantium ullam eius
-        ipsa beatae corrupti est tenetur sit! Illum nostrum at magnam mollitia!
-
-        <br />
-        <v-btn
-          @click="Store.position.init"
-          rounded="pill"
-          size="large"
-          class="mt-10"
-        >
-          authoriser
-        </v-btn>
-      </div>
-    </div>
+    <c-position-ask v-else-if="!Store.position.position.authorized" />
+    <c-no-available v-else-if="!Store.app.available" />
     <div v-else>
       <nuxt-page />
     </div>

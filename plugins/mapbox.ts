@@ -1,18 +1,12 @@
-import mapboxgl from "mapbox-gl"; // or "const mapboxgl = require('mapbox-gl');"
-import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
-// import MapboxDirections from "@mapbox/mapbox-gl-directions";
-
+import mapboxgl from "mapbox-gl";
 import Axios from "axios";
-
 import "mapbox-gl/dist/mapbox-gl.css";
-import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
 
 export default defineNuxtPlugin({
   name: "mapbox",
 
   async setup(nuxtApp) {
-    mapboxgl.accessToken =
-      "pk.eyJ1IjoibWFtYWRvdXRhbGxhZGlhIiwiYSI6ImNrcWdpY2RzNjA0YXkycXJvaGI4ZHNpbTAifQ.M_2fTMFrpYwZ4gaukK1SRg";
+    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
     const mapbox = {
       createMap(options: mapboxgl.MapboxOptions) {
@@ -49,8 +43,8 @@ export default defineNuxtPlugin({
           "https://api.mapbox.com/search/searchbox/v1/suggest",
           {
             params: {
-              language: "fr",
-              country: "ma",
+              language: Store.app.details.lang,
+              country: Store.app.details.country,
               proximity: `${Store.position.position.current.lng},${Store.position.position.current.lat}`,
               session_token: "07a290ed-2d48-4e21-88f0-d2d49560c871",
               access_token: mapboxgl.accessToken,
@@ -98,23 +92,6 @@ export default defineNuxtPlugin({
         );
 
         return routes;
-      },
-
-      geocoder(
-        map: mapboxgl.Map,
-        options: Partial<MapboxGeocoder.GeocoderOptions> = {}
-      ) {
-        const geocoder = new MapboxGeocoder({
-          language: "fr",
-          countries: "ma",
-          ...options,
-          accessToken: mapboxgl.accessToken,
-          mapboxgl: mapboxgl,
-        });
-
-        map.addControl(geocoder);
-
-        return geocoder;
       },
     };
 

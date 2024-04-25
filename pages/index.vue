@@ -1,11 +1,6 @@
 <script lang="ts" setup>
-import pgTravel from "~/components/travel/index.vue";
-import pgDrive from "~/components/drive.vue";
+const { $router } = useNuxtApp();
+onMounted(() => {
+  $router.replace({ name: "console" });
+});
 </script>
-
-<template>
-  <pg-travel v-if="Store.app.mode === 'traveller'" />
-  <pg-drive v-else />
-
-  <nuxt-page />
-</template>
