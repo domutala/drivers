@@ -43,11 +43,25 @@ const Socket = {
     }
 
     return new Promise<T>((resolve, reject) => {
-      this.socket.emit(event, data, (response: any) => {
-        if (response === "__ERROR__") throw "Error";
-        response = decrypter(response);
-        resolve(response);
-      });
+      let isTimeout = false;
+      let isREsponse = false;
+      function onResponse(data: any) {
+        if (isTimeout) return reject("__TIMEOUT__");
+        if (data === "__ERROR__") return reject(data);
+
+        isREsponse = true;
+        data = decrypter(data);
+        resolve(data);
+      }
+
+      this.socket.emit(event, data, onResponse);
+
+      setTimeout(() => {
+        if (isREsponse) return;
+
+        isTimeout = true;
+        onResponse("__ERROR__");
+      }, 5000);
     });
   },
 };

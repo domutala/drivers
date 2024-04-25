@@ -49,6 +49,7 @@ export default defineNuxtPlugin({
               session_token: "07a290ed-2d48-4e21-88f0-d2d49560c871",
               access_token: mapboxgl.accessToken,
               q: q.split(" ").join("+"),
+              limit: 10,
             },
           }
         );

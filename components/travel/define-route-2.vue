@@ -103,12 +103,33 @@ function onDrag() {
 function onEnddrag() {
   if (!pointEdit.value) return;
   if (!travel.value.points[pointEdit.value]) return;
-  if (!map.value) return;
 
-  // if(pointEdit.value === 'destination') setDestination()
-  // else setDeparture()
+  findPoint(
+    travel.value.points[pointEdit.value]!.marker.getLngLat(),
+    pointEdit.value === "destination" ? setDestination : setDeparture
+  );
+}
 
-  buildRoute();
+async function findPoint(
+  point: string | { lat: number; lng: number },
+  callback: (point: any) => void | Promise<void>
+) {
+  try {
+    const features =
+      typeof point === "string"
+        ? await $mapbox.get(point)
+        : await $mapbox.lookup({ latitude: point.lat, longitude: point.lng });
+    const feature = features.features[0];
+
+    await callback({
+      lat: feature.properties.coordinates.latitude,
+      lng: feature.properties.coordinates.longitude,
+      name: feature.properties.name_preferred,
+      place: feature.properties.place_formatted,
+    });
+  } catch (error) {
+    console.log("__catch___", error);
+  }
 }
 
 function setDeparture(point: {
@@ -132,30 +153,10 @@ function setDeparture(point: {
     };
   }
 
+  travel.value.points.departure.meta = { name: point.name, place: point.place };
   map.value.flyTo({
     animate: true,
     center: travel.value.points.departure.marker.getLngLat(),
-  });
-}
-
-async function findPoint(
-  point: string | { lat: number; lng: number },
-  callback: (point: any) => void | Promise<void>
-) {
-  const features =
-    typeof point === "string"
-      ? await $mapbox.get(point)
-      : await $mapbox.lookup({
-          latitude: Store.position.position.current.lat,
-          longitude: Store.position.position.current.lng,
-        });
-  const feature = features.features[0];
-
-  await callback({
-    lat: feature.properties.coordinates.latitude,
-    lng: feature.properties.coordinates.longitude,
-    name: feature.properties.name_preferred,
-    place: feature.properties.place_formatted,
   });
 }
 
@@ -352,11 +353,27 @@ function onPlace(mapbox_id: string) {
           <v-btn
             v-if="pointEdit"
             :disabled="!travel.points[pointEdit]"
+            :loading="routing"
             color="primary"
             rounded="pill"
             size="x-large"
             @click.stop="pointEdit = undefined"
           >
+            <template #loader>
+              <div>
+                <v-progress-linear
+                  indeterminate
+                  :height="12"
+                  rounded
+                  rounded-bar
+                  stream
+                  striped
+                  color="dark"
+                  bg-color="light *-*"
+                  style="width: 80px"
+                />
+              </div>
+            </template>
             Terminer
           </v-btn>
           <v-btn
@@ -414,10 +431,22 @@ function onPlace(mapbox_id: string) {
               height: 80px;
               display: flex;
               align-items: center;
-              justify-content: center;
+              position: relative;
             "
           >
-            <v-progress-circular indeterminate size="22" />
+            <v-progress-linear
+              indeterminate
+              :height="12"
+              rounded
+              rounded-bar
+              stream
+              striped
+              color="dark"
+              bg-color="light *-*"
+              style="width: 80px"
+            />
+
+            <!-- <v-progress-circular indeterminate size="22" /> -->
           </div>
           <div
             v-else-if="travel.coordinates.length"

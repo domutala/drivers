@@ -11,8 +11,13 @@ const emit = defineEmits<{ (e: "place", value: any): void }>();
 
 watch(() => text.value, search);
 async function search() {
-  const suggestions = await $mapbox.search(text.value);
-  places.value = suggestions.suggestions;
+  const response = await $mapbox.search(text.value);
+
+  const suggestions = response.suggestions.filter(
+    (suggestion: any) => suggestion.feature_type !== "category"
+  );
+
+  places.value = suggestions;
 }
 async function searchOld() {
   controller.abort();
