@@ -1,3 +1,9 @@
+.mapboxgl-map {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
 .mapbox-marker-point {
   position: relative;
   width: 10px;
@@ -42,5 +48,63 @@
         transform: scale(1.2);
       }
     }
+  }
+}
+
+.mapbox-marker-radar {
+  width: 500px;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+
+  .mapbox-marker-radar--circle {
+    position: absolute;
+    width: 0px;
+    height: 0px;
+    border-radius: 100%;
+    background: rgba(var(--v-theme-primary));
+    animation: mapbox-marker-radar-animation 3s ease-out infinite;
+
+    &:nth-of-type(1) {
+      animation-delay: 0.2s;
+    }
+    &:nth-of-type(2) {
+      animation-delay: 0.6s;
+    }
+    &:nth-of-type(3) {
+      animation-delay: 1s;
+    }
+    &:nth-of-type(4) {
+      animation-delay: 1.4s;
+    }
+    &:nth-of-type(5) {
+      animation-delay: 1.8s;
+    }
+  }
+
+  @keyframes mapbox-marker-radar-animation {
+    0% {
+      opacity: 0.3;
+    }
+    // 30% {
+    //   width: 50%;
+    //   height: 50%;
+    // }
+    100% {
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+    }
+  }
+
+  .mapbox-marker-radar--point {
+    background-color: rgba(var(--v-theme-primary));
+    border: 5px solid #fff;
+    border-radius: 100%;
+    width: 30px;
+    height: 30px;
+    position: relative;
   }
 }

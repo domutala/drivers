@@ -22,3 +22,13 @@ export interface ITravel {
   from: { lat: number; lng: number; name?: string };
   to: { lat: number; lng: number; name?: string };
 }
+
+export interface ITravel2 {
+  points: {
+    departure: { lat: number; lng: number; name?: string; place: string };
+    destination: { lat: number; lng: number; name?: string; place: string };
+  };
+  distance: number;
+  duration: number;
+  price: { amount: number; currency: string };
+}

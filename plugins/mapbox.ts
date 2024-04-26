@@ -1,6 +1,6 @@
 import mapboxgl from "mapbox-gl";
 import Axios from "axios";
-import "mapbox-gl/dist/mapbox-gl.css";
+// import "mapbox-gl/dist/mapbox-gl.css";
 
 export default defineNuxtPlugin({
   name: "mapbox",
@@ -33,6 +33,25 @@ export default defineNuxtPlugin({
           const circle = document.createElement("div");
           circle.className = "mapbox-marker-point--circle";
           point.appendChild(circle);
+
+          return div;
+        },
+        radar() {
+          const div = document.createElement("div");
+
+          const radar = document.createElement("div");
+          radar.className = "mapbox-marker-radar";
+          div.appendChild(radar);
+
+          for (let i = 0; i < 3; i++) {
+            const circle = document.createElement("div");
+            circle.className = "mapbox-marker-radar--circle";
+            radar.appendChild(circle);
+          }
+
+          const point = document.createElement("div");
+          point.className = "mapbox-marker-radar--point";
+          radar.appendChild(point);
 
           return div;
         },

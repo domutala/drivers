@@ -276,13 +276,12 @@ function onPlace(mapbox_id: string) {
 </script>
 
 <template>
-  <v-app>
-    <c-navbar />
+  <c-navbar />
 
-    <div id="map"></div>
+  <div id="map" class="mapbox-container"></div>
 
-    <div class="trvl-search-places-bottom">
-      <!-- <transition
+  <div class="trvl-search-places-bottom">
+    <!-- <transition
         apper
         enter-active-class="animate__animated animate__slideInUp"
         leave-active-class="animate__animated animate__slideOutDown"
@@ -307,188 +306,187 @@ function onPlace(mapbox_id: string) {
         </div>
       </transition> -->
 
-      <div class="trvl-search-places--input bg-background">
-        <v-list-item
-          v-for="(point, p) in travel.points"
-          :key="p"
-          class="w-100 py-4 rounded-pill"
-          style="cursor: pointer"
-          @click="
-            pointEdit = p as string;
-            $router.push({ query: { search: 'open' } });
-          "
-          v-show="!pointEdit || pointEdit === p"
+    <div class="trvl-search-places--input bg-background">
+      <v-list-item
+        v-for="(point, p) in travel.points"
+        :key="p"
+        class="w-100 py-4 rounded-pill"
+        style="cursor: pointer"
+        @click="
+          pointEdit = p as string;
+          $router.push({ query: { search: 'open' } });
+        "
+        v-show="!pointEdit || pointEdit === p"
+      >
+        <template #prepend>
+          <i
+            class="fi fi-rr-marker mr-3"
+            :class="{
+              'text-green': p === 'departure',
+              'text-red': p === 'destination',
+            }"
+          ></i>
+        </template>
+
+        <template #title>
+          <div v-if="point" style="line-height: 1">
+            <div style="font-size: 16px; padding: 0">
+              {{ point.meta.name || "Route sans nom" }}
+            </div>
+            <div style="font-size: 80%; padding: 0; opacity: 0.5">
+              {{ point.meta.place }}
+            </div>
+          </div>
+          <div v-else style="line-height: 1">
+            <div style="font-size: 16px; padding: 0">
+              {{ p }}
+            </div>
+            <div style="font-size: 80%; padding: 0; opacity: 0.5">
+              Cliquer pout modifier
+            </div>
+          </div>
+        </template>
+      </v-list-item>
+
+      <div class="mt-3 w-100 d-flex align-center justify-center">
+        <v-btn
+          v-if="pointEdit"
+          :disabled="!travel.points[pointEdit]"
+          :loading="routing"
+          color="primary"
+          rounded="pill"
+          size="x-large"
+          @click.stop="pointEdit = undefined"
         >
-          <template #prepend>
-            <i
-              class="fi fi-rr-marker mr-3"
-              :class="{
-                'text-green': p === 'departure',
-                'text-red': p === 'destination',
-              }"
-            ></i>
-          </template>
-
-          <template #title>
-            <div v-if="point" style="line-height: 1">
-              <div style="font-size: 16px; padding: 0">
-                {{ point.meta.name || "Route sans nom" }}
-              </div>
-              <div style="font-size: 80%; padding: 0; opacity: 0.5">
-                {{ point.meta.place }}
-              </div>
-            </div>
-            <div v-else style="line-height: 1">
-              <div style="font-size: 16px; padding: 0">
-                {{ p }}
-              </div>
-              <div style="font-size: 80%; padding: 0; opacity: 0.5">
-                Cliquer pout modifier
-              </div>
+          <template #loader>
+            <div>
+              <v-progress-linear
+                indeterminate
+                :height="12"
+                rounded
+                rounded-bar
+                stream
+                striped
+                color="dark"
+                bg-color="light *-*"
+                style="width: 80px"
+              />
             </div>
           </template>
-        </v-list-item>
-
-        <div class="mt-3 w-100 d-flex align-center justify-center">
-          <v-btn
-            v-if="pointEdit"
-            :disabled="!travel.points[pointEdit]"
-            :loading="routing"
-            color="primary"
-            rounded="pill"
-            size="x-large"
-            @click.stop="pointEdit = undefined"
-          >
-            <template #loader>
-              <div>
-                <v-progress-linear
-                  indeterminate
-                  :height="12"
-                  rounded
-                  rounded-bar
-                  stream
-                  striped
-                  color="dark"
-                  bg-color="light *-*"
-                  style="width: 80px"
-                />
-              </div>
-            </template>
-            Terminer
-          </v-btn>
-          <v-btn
-            v-else-if="travel.distance"
-            color="primary"
-            rounded="pill"
-            size="x-large"
-          >
-            Trouver un conducteur
-          </v-btn>
-        </div>
+          Terminer
+        </v-btn>
+        <v-btn
+          v-else-if="travel.distance"
+          color="primary"
+          rounded="pill"
+          size="x-large"
+        >
+          Trouver un conducteur
+        </v-btn>
       </div>
     </div>
+  </div>
 
-    <div id="trvl-distantion-marker">
-      <div
-        class="bg-white d-flex ga-2 align-center justify-center"
+  <div id="trvl-distantion-marker">
+    <div
+      class="bg-white d-flex ga-2 align-center justify-center"
+      style="
+        width: max-content;
+        border-radius: 0.7em;
+        position: relative;
+        padding: 5px;
+        box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px,
+          rgba(0, 0, 0, 0.3) 0px 18px 36px -18px;
+      "
+    >
+      <svg-icon
         style="
-          width: max-content;
-          border-radius: 0.7em;
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          max-width: 63px;
+          bottom: -35px;
+          left: 50%;
+          transform: translateX(-50%);
+        "
+        name="map-spin"
+        class="text-white"
+      />
+      <div
+        class="bg-primary"
+        style="
+          border-radius: 0.5em;
           position: relative;
-          padding: 5px;
-          box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px,
-            rgba(0, 0, 0, 0.3) 0px 18px 36px -18px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 92px;
         "
       >
-        <svg-icon
-          style="
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            max-width: 63px;
-            bottom: -35px;
-            left: 50%;
-            transform: translateX(-50%);
-          "
-          name="map-spin"
-          class="text-white"
-        />
         <div
-          class="bg-primary"
+          v-if="routing"
           style="
-            border-radius: 0.5em;
+            width: 110px;
+            height: 80px;
+            display: flex;
+            align-items: center;
             position: relative;
+          "
+        >
+          <v-progress-linear
+            indeterminate
+            :height="12"
+            rounded
+            rounded-bar
+            stream
+            striped
+            color="dark"
+            bg-color="light"
+            style="width: 80px"
+          />
+
+          <!-- <v-progress-circular indeterminate size="22" /> -->
+        </div>
+        <div
+          v-else-if="travel.coordinates.length"
+          style="min-width: 110px"
+          @click="pointEdit = 'destination'"
+        >
+          <div class="d-flex align-center ga-3 px-3 py-1">
+            <i class="fi fi-rr-stopwatch" style="opacity: 0.7"></i>
+            {{ Num.formatDuration(travel.duration) }}
+          </div>
+          <div class="d-flex align-center ga-3 px-3 py-1 border-t">
+            <i class="fi fi-rr-route" style="opacity: 0.7"></i>
+            {{ Num.formatDistance(travel.distance) }}
+          </div>
+          <div class="d-flex align-center ga-3 px-3 py-1 border-t">
+            <i class="fi fi-rr-ticket" style="opacity: 0.7"></i>
+            {{ travel.price.amount }}
+            {{ travel.price.currency }}
+          </div>
+        </div>
+        <div
+          v-else
+          style="
+            width: 110px;
+            height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 92px;
           "
         >
-          <div
-            v-if="routing"
-            style="
-              width: 110px;
-              height: 80px;
-              display: flex;
-              align-items: center;
-              position: relative;
-            "
-          >
-            <v-progress-linear
-              indeterminate
-              :height="12"
-              rounded
-              rounded-bar
-              stream
-              striped
-              color="dark"
-              bg-color="light *-*"
-              style="width: 80px"
-            />
-
-            <!-- <v-progress-circular indeterminate size="22" /> -->
-          </div>
-          <div
-            v-else-if="travel.coordinates.length"
-            style="min-width: 110px"
-            @click="pointEdit = 'destination'"
-          >
-            <div class="d-flex align-center ga-3 px-3 py-1">
-              <i class="fi fi-rr-stopwatch" style="opacity: 0.7"></i>
-              {{ Num.formatDuration(travel.duration) }}
-            </div>
-            <div class="d-flex align-center ga-3 px-3 py-1 border-t">
-              <i class="fi fi-rr-route" style="opacity: 0.7"></i>
-              {{ Num.formatDistance(travel.distance) }}
-            </div>
-            <div class="d-flex align-center ga-3 px-3 py-1 border-t">
-              <i class="fi fi-rr-ticket" style="opacity: 0.7"></i>
-              {{ travel.price.amount }}
-              {{ travel.price.currency }}
-            </div>
-          </div>
-          <div
-            v-else
-            style="
-              width: 110px;
-              height: 80px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            "
-          >
-            <v-icon size="56" icon="mdi-account-circle" />
-          </div>
+          <v-icon size="56" icon="mdi-account-circle" />
         </div>
       </div>
-      <div style="height: 19px"></div>
     </div>
+    <div style="height: 19px"></div>
+  </div>
 
-    <trvl-search-places
-      v-if="$route.query.search === 'open'"
-      @place="(v) => onPlace(v)"
-    />
-  </v-app>
+  <trvl-search-places
+    v-if="$route.query.search === 'open'"
+    @place="(v) => onPlace(v)"
+  />
 </template>
 
 <style lang="scss">

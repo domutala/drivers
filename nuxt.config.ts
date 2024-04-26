@@ -17,6 +17,7 @@ export default defineNuxtConfig({
   components: [{ path: "~/components/ui", global: true, prefix: "ui" }],
 
   css: [
+    "mapbox-gl/dist/mapbox-gl.css",
     "animate.css/animate.min.css",
     "@flaticon/flaticon-uicons/css/all/all.css",
     "~/assets/styles/main.scss",
