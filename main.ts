@@ -1,6 +1,6 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
-import { SocketAdapter } from "socket.adapter";
+import { SocketAdapter } from "utils/socket.adapter";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -12,4 +12,5 @@ async function bootstrap() {
 
   console.log(`listen at http://localhost:${port}`, await app.getUrl());
 }
+
 bootstrap();

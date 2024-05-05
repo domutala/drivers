@@ -399,5 +399,5 @@ dist
 .webpack
 .serverless/**/*.zip
 
-config.rsa.json
+rsa.config.json
 _FILES_
