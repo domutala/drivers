@@ -36,13 +36,14 @@ const Socket = {
       });
     });
   },
-  emit<T = any>(event: string, data: { [key: string]: any } = {}) {
+  emit<T = any>(event: string, data: { [key: string]: any } = {}, options: { timeout?: number } = {}) {
     if (Store.session.session.id) {
       this.socket.io.opts.extraHeaders ||= {};
       this.socket.io.opts.extraHeaders.authorization = `Bearer ${Store.session.session.id}`;
     }
 
     return new Promise<T>((resolve, reject) => {
+      const timeout = options.timeout || 30000
       let isTimeout = false;
       let isREsponse = false;
       function onResponse(data: any) {
@@ -61,7 +62,7 @@ const Socket = {
 
         isTimeout = true;
         onResponse("__ERROR__");
-      }, 5000);
+      }, timeout);
     });
   },
 };

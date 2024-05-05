@@ -24,10 +24,11 @@ const positionStore = defineStore(
     }
 
     async function init() {
-      if (Capacitor.getPlatform() === "android") {
+      if (Capacitor.getPlatform() !== "web") {
         const status = await Geolocation.checkPermissions();
+
         if (status.location !== "granted") {
-          const status = await Geolocation.requestPermissions();
+          const status = await Geolocation.requestPermissions({ permissions: ['location'] });
           if (status.location === "granted") set({ authorized: true });
           else set({ authorized: false });
         } else set({ authorized: true });

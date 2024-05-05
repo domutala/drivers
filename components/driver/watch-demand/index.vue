@@ -1,19 +1,25 @@
 <script lang="ts" setup>
 import mapboxgl from "mapbox-gl";
 import cDemand from "./demand.vue";
+import type { ITravel } from "~/models/Travel";
 
-const { $mapbox, $router } = useNuxtApp();
+const { $mapbox } = useNuxtApp();
 const map = ref<mapboxgl.Map>();
 const mapContainer = ref<HTMLDivElement>();
-const initing = ref(false);
 const position = ref<mapboxgl.Marker>();
 
-onMounted(async () => {
-  initing.value = true;
-  init();
-  initing.value = false;
-});
+onMounted(search)
+async function search() {
+  Socket.socket.on('travel:traveller-accept-driver', onTravellerAcceptOffer)
+  try {
+    const travels = await Socket.emit<ITravel[]>('travel:search-traveller');
+    Store.driver.push(travels)
+  } finally {
+    setTimeout(search, 1000);
+  }
+}
 
+onMounted(init);
 async function init() {
   if (!mapContainer.value) return;
 
@@ -44,42 +50,47 @@ function setPosition() {
     duration: 1200,
   });
 }
+
+function onTravellerAcceptOffer(travel: ITravel) {
+  if (travel.id === Store.driver.accept?.travel.id) {
+    Store.driver.setCurrent(travel)
+  }
+}
+
+onBeforeUnmount(destroy);
+onDeactivated(destroy);
+function destroy() {
+  Socket.socket.off('travel:traveller-accept-driver', onTravellerAcceptOffer)
+}
 </script>
 
 <template>
   <div ref="mapContainer"></div>
   <div class="drvr-watch-demand--body">
-    <div
-      :style="{ marginTop: `${Store.app.statusBar.height + 20}px` }"
-      class="drvr-watch-demand--head d-flex align-center justify-center"
-    >
-      <v-chip color="black" variant="flat" elevation="5">
-        En attente de demande
-      </v-chip>
+    <div v-if="Store.driver.accept" class="drvr-watch-demand--bottom">
+      <div class="bg-background pa-5 text-center">
+        <v-progress-circular indeterminate rounded rounded-bar stream striped color="primary" />
+        En attente de l'acceptation de Mamadou
+      </div>
     </div>
 
-    <div class="drvr-watch-demand--bottom">
-      <div class="bg-background drvr-watch-demand--empty">
-        <c-demand v-for="i in 1" :key="i" />
+    <div v-else class="drvr-watch-demand--bottom">
+      <div class="drvr-watch-demand--watcher d-flex align-center justify-center mb-3">
+        <v-chip v-if="!Store.driver.accept" color="black" variant="flat" elevation="5" class="">
+          <v-progress-linear indeterminate :height="12" rounded rounded-bar stream striped color="white"
+            bg-color="white" style="width: 80px" />
+
+          <!-- En attente de demande -->
+        </v-chip>
       </div>
 
-      <!-- <div class="bg-background drvr-watch-demand--empty">
-        <div class="pb-2 pt-7 text-center mx-auto" style="max-width: 220px">
+      <div class="bg-background drvr-watch-demand--empty">
+        <c-demand v-for="travel in Store.driver.travels" :key="travel.id" :travel="travel" />
+
+        <div v-if="!Store.driver.travels.length" class="py-5 text-center mx-auto" style="max-width: 220px">
           Aucune demande dans cette zone pour le moment.
-          <v-progress-linear
-            indeterminate
-            :height="12"
-            rounded
-            rounded-bar
-            stream
-            striped
-            color="dark"
-            bg-color="light"
-            class="mt-3"
-            style="width: 80px"
-          />
         </div>
-      </div> -->
+      </div>
     </div>
   </div>
 </template>
@@ -99,18 +110,23 @@ function setPosition() {
     @media (min-width: 662px) {
       bottom: 20px;
     }
+
+    >div:not(.drvr-watch-demand--watcher) {
+      border-top-right-radius: 1.9em;
+      border-top-left-radius: 1.9em;
+      box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+
+      @media (min-width: 662px) {
+        border-radius: 1.9em;
+      }
+    }
   }
 
+
+
   .drvr-watch-demand--empty {
-    border-top-right-radius: 1.9em;
-    border-top-left-radius: 1.9em;
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
     max-height: 70lvh;
     overflow: auto;
-
-    @media (min-width: 662px) {
-      border-radius: 1.9em;
-    }
   }
 
   .drvr-watch-demand--empty {

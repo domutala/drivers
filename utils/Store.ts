@@ -2,6 +2,8 @@ import position from "~/store/position";
 import app from "~/store/app";
 import session from "~/store/session";
 import travel from "~/store/travel";
+import traveller from "~/store/traveller";
+import driver from "~/store/driver";
 
 class Store {
   get position() {
@@ -18,6 +20,14 @@ class Store {
 
   get travel() {
     return travel();
+  }
+
+  get traveller() {
+    return traveller();
+  }
+
+  get driver() {
+    return driver();
   }
 }
 

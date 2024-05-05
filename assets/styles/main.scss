@@ -10,6 +10,7 @@ body {
   //   background: transparent;
   // }
   background-color: rgba(var(--v-theme-background));
+  user-select: none;
 }
 
 svg {

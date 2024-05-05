@@ -5,7 +5,7 @@ const travelStore = defineStore(
   "travel",
   () => {
     const current = ref<ITravel>();
-    function setCurrent(value: ITravel) {
+    function setCurrent(value?: ITravel) {
       current.value = value;
     }
     function getAccept(id: string) {

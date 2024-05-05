@@ -11,7 +11,7 @@ interface IMapRoute {
     coordinates: [number, number][];
     distance: number;
     duration: number;
-    price: { amount: number; currency: string };
+    price: { amount: number; traveller: 0, driver: 0, currency: string };
     bounds: [[number, number], [number, number]];
   };
 }

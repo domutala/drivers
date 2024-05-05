@@ -4,6 +4,11 @@
   height: 100%;
 }
 
+.mapboxgl-ctrl-attrib,
+.mapboxgl-ctrl-logo {
+  display: none !important;
+}
+
 .mapbox-marker-point {
   position: relative;
   width: 10px;
@@ -106,5 +111,23 @@
     width: 30px;
     height: 30px;
     position: relative;
+  }
+}
+
+.mapbox-marker-point-with-popup {
+  .mapboxgl-popup-content {
+    padding: 0px !important;
+    background-color: transparent !important;
+
+    >* {
+      background-color: #000;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 16em;
+    }
+  }
+
+  .mapboxgl-popup-tip {
+    border-top-color: #000 !important;
   }
 }

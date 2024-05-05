@@ -36,6 +36,30 @@ export default defineNuxtPlugin({
 
           return div;
         },
+
+        navigation() {
+          const div = document.createElement("div");
+
+          const navigation = document.createElement("div");
+          navigation.className = "mapbox-marker-navigation";
+          navigation.style.width = "48px";
+          navigation.style.height = "48px";
+          div.appendChild(navigation);
+
+          const icon = `<svg viewBox="0 0 64 64">
+            <g>
+              <path
+                fill="rgb(var(--v-theme-primary))" 
+                d="M2.73 52.205c-2.812 5.628 2.918 11.713 8.704 9.232L28.06 54.31a10 10 0 0 1 7.88 0l16.626 7.128c5.786 2.48 11.516-3.604 8.703-9.232L38.042 5.735c-2.49-4.98-9.595-4.98-12.084 0z" stroke="#ffffff" stroke-width="5"></path>
+            </g>
+          </svg>
+          `
+
+          navigation.innerHTML = icon
+
+          return div
+        },
+
         radar() {
           const div = document.createElement("div");
 
@@ -55,6 +79,34 @@ export default defineNuxtPlugin({
 
           return div;
         },
+      },
+
+      calculateBearing(position: { lat: number, lng: number }, route: IMapRoute) {
+        // Fonction utilitaire pour convertir degrés en radians
+        const toRadians = (degrees: any) => {
+          return degrees * Math.PI / 180;
+        };
+
+        // Fonction utilitaire pour convertir radians en degrés
+        const toDegrees = (radians: any) => {
+          return radians * 180 / Math.PI;
+        };
+
+        const start = position;
+        const end = route.meta.coordinates[1];
+
+        const startLat = toRadians(start.lat);
+        const startLng = toRadians(start.lng);
+        const endLat = toRadians(end[1]);
+        const endLng = toRadians(end[0]);
+
+        const dLng = endLng - startLng;
+
+        const y = Math.sin(dLng) * Math.cos(endLat);
+        const x = Math.cos(startLat) * Math.sin(endLat) - Math.sin(startLat) * Math.cos(endLat) * Math.cos(dLng);
+
+        const bearing = Math.atan2(y, x);
+        return (toDegrees(bearing) + 360) % 360;
       },
 
       async search(q: string) {
