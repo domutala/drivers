@@ -7,19 +7,23 @@ import { UserService } from "services/user";
 import { SessionModule } from "modules/session";
 import { TravelModule } from "modules/travel";
 import { HttpModule } from "@nestjs/axios";
+import { FyleModule } from "modules/fyle";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({ ...ConfigDatabase(), autoLoadEntities: true }),
     SessionModule,
     TravelModule,
+    FyleModule
   ],
 
   controllers: [],
 
-  providers: [UserRepository, UserService],
+  // providers: [UserRepository, UserService],
 
   exports: [],
 })
-export class AppModule {}
+export class AppModule { }

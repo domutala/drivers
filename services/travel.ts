@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, Logger, Scope } from "@nestjs/common";
 import { REQUEST } from "@nestjs/core";
 import { TravelRepository } from "database/repositorys/Travel";
 import { Request } from "express";
@@ -6,12 +6,18 @@ import { Server, Socket } from "socket.io";
 import verify from "utils/verify";
 import mapbox from "utils/mapbox";
 import * as turf from "@turf/turf";
+import { FyleRepository } from "database/repositorys/Fyle";
+import { Travel } from "database/entitys/Travel";
+import { v4 as uuidv4 } from "uuid";
+import * as dayjs from "dayjs";
 
 @Injectable()
 export class TravelService {
-  constructor(@Inject(REQUEST) private request: Request) {}
+  constructor(@Inject(REQUEST) private request: Request) {
+  }
 
   @Inject() private repository: TravelRepository;
+  @Inject() private fyleRepository: FyleRepository;
 
   server: Server;
 
@@ -56,6 +62,66 @@ export class TravelService {
     return routes;
   }
 
+  async searchDriver(client: Socket, data: { [x: string]: any }) {
+    const departure = data.from || data.departure
+    const destination = data.to || data.destination
+    const routes = await mapbox.route({ departure, destination })
+    const route = routes.routes[0]
+    const geojson = {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: {},
+          geometry: route.geometry,
+        },
+      ],
+    }
+
+    let travel: Travel;
+
+    if (data.id) travel = await this.repository._findOne({ id: data.id })
+
+
+    if (!travel) {
+      travel = await this.repository._create({
+        from: data.departure,
+        to: data.destination,
+        distance: route.distance,
+        duration: route.duration,
+        price: data.price,
+      });
+    }
+
+    if (data.price) travel.price = data.price
+
+    travel = await this.repository._update(travel);
+
+
+    // const picture = await mapbox.capture({ ...data, geojson } as any)
+    // const mapFyle = await this.fyleRepository._save({ type: 'image/png', access: ['*'], data: picture })
+
+    client.join(travel.id);
+
+    return travel
+  }
+
+  async searchTraveller(client: Socket, data: { [x: string]: any }) {
+    const travels = await this.repository._find({ step: 'search_driver' })
+    return travels
+  }
+
+  async clean() {
+    const travels = await this.repository._find({ steps: ['search_driver'] })
+    for (const travel of travels) {
+      const diff = dayjs().diff(travel.updatedAt, 'seconds')
+      if (Math.abs(diff) >= 60) {
+        await this.repository._update({ id: travel.id, step: 'cancel' })
+        this.server.to(travel.id).emit("travel:cancel", travel);
+      }
+    }
+  }
+
   async init(client: Socket, data: { [x: string]: any }) {
     if (
       !verify.isNumber(data.distance) ||
@@ -66,9 +132,9 @@ export class TravelService {
       throw "travel.init.invalid_data";
     }
 
-    const travel = await this.repository._init(data);
+    // const travel = await this.repository._init(data);
 
-    return travel;
+    return;
   }
 
   async findDriver(client: Socket, data: { [x: string]: any }) {
@@ -90,28 +156,33 @@ export class TravelService {
     return travel;
   }
 
-  async accept(client: Socket, data: any) {
-    if (
-      !verify.isNumber(data.offer.price) ||
-      !verify.isNumber(data.offer.distance) ||
-      !verify.isNumber(data.offer.time)
-    ) {
+  async driverAccept(client: Socket, data: { id: string; price: number, duration: number }) {
+    if (!verify.isNumber(data.price) || !verify.isNumber(data.duration)) {
       throw "travel.accept.invalid_data";
     }
 
-    const travel = await this.repository._accept(data);
-    const offer = travel.accepts[travel.accepts.length - 1];
+    const travel = await this.repository._findOne({ id: data.id })
+    if (!travel) throw 'travel.accept.travel_not_found'
 
-    client.join(offer.id);
-    this.server.to(travel.id).emit("travel:accept", offer);
+    const offer = { id: data.id, duration: data.duration, price: data.price, key: uuidv4() }
 
-    return travel;
+    client.join(offer.key);
+    this.server.to(travel.id).emit("travel:driver-accept", offer);
+
+    return offer;
   }
 
-  async acceptDriver(client: Socket, data: { id: string; offer: string }) {
-    const { travel, i } = await this.repository._acceptDriver(data);
+  async travellerAcceptDriver(client: Socket, data: { id: string; price: number, key: string }) {
+    if (!verify.isNumber(data.price) || !verify.isString(data.key)) {
+      throw "travel.acceptDriver.invalid_data";
+    }
 
-    this.server.to(travel.accepts[i].id).emit("travel:accept-driver", travel);
+    let travel = await this.repository._findOne({ id: data.id })
+    if (!travel) throw 'travel.accept.travel_not_found'
+
+    travel = await this.repository._update({ id: travel.id, step: 'await_driver', price: { ...travel.price, amount: data.price } })
+
+    this.server.to(data.key).emit("travel:traveller-accept-driver", travel);
 
     return travel;
   }

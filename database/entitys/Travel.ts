@@ -13,20 +13,24 @@ export class Travel extends Base {
     | "on_the_way"
     | "cancel";
 
-  @Column({ type: "float" })
-  distance: number;
-
-  @Column({ type: "float" })
-  time: number;
-
-  @Column({ type: "int", nullable: true })
-  price: number;
 
   @Column({ type: "jsonb" })
   from: { lat: number; lng: number; name?: string };
 
   @Column({ type: "jsonb" })
   to: { lat: number; lng: number; name?: string };
+
+  @Column({ type: "float" })
+  distance: number;
+
+  @Column({ type: "float" })
+  duration: number;
+
+  @Column({ type: "jsonb" })
+  price: { amount: number, currency: string };
+
+  @Column({ type: "varchar", nullable: true })
+  capture: string;
 
   @Column({ type: "jsonb", default: [] })
   accepts: {

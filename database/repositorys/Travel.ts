@@ -14,37 +14,47 @@ export class TravelRepository extends Repository<Travel> {
 
   @Inject() private readonly httpService: HttpService;
 
-  async _init(data: Partial<Travel>) {
-    let travel: Travel;
-    if (data.id) travel = await this._findOne({ id: data.id });
-    if (!travel) travel = new Travel();
-
-    travel.step = "define_route";
+  async _create(data: Partial<Travel>) {
+    const travel = new Travel();
+    travel.step = "search_driver";
     travel.distance = data.distance;
-    travel.time = data.time;
+    travel.duration = data.duration;
+    travel.price = data.price;
     travel.from = data.from;
     travel.to = data.to;
-
-    try {
-      const toUrl = `https://api.geoapify.com/v1/geocode/reverse?lat=${travel.to.lat}&lon=${travel.to.lng}&format=json&apiKey=${process.env.API_GEOAPIFY_KEY}`;
-      const toPlace = await (await fetch(toUrl)).json();
-      travel.to.name = toPlace.results[0].address_line1;
-
-      const fromUrl = `https://api.geoapify.com/v1/geocode/reverse?lat=${travel.from.lat}&lon=${travel.from.lng}&format=json&apiKey=${process.env.API_GEOAPIFY_KEY}`;
-      const fromPlace = await (await fetch(fromUrl, {})).json();
-      travel.from.name = fromPlace.results[0].address_line1;
-    } catch (error) {
-      throw error;
-    }
-
-    const distanceInKilometers = data.distance / 1000;
-    travel.price = Math.round(5 * distanceInKilometers);
-    if (verify.isNumber(data.price)) travel.price = data.price;
+    travel.capture = data.capture;
 
     await travel.save();
 
     return travel;
   }
+
+
+
+  async _update(data: Partial<Travel>) {
+    const travel = await this._findOne({ id: data.id });
+    if (!travel) throw "travel.update.travel_not_found";
+
+
+    const items = [
+      "step",
+      "from",
+      "to",
+      "distance",
+      "duration",
+      "priced",
+      "capture",
+      "time",
+      "price",
+    ]
+
+    for (const item of items) travel[item] = data[item]
+
+    await travel.save();
+
+    return travel;
+  }
+
 
   async _findDriver(data: Partial<Travel>) {
     const travel = await this._findOne({ id: data.id });
@@ -53,7 +63,7 @@ export class TravelRepository extends Repository<Travel> {
     travel.step = "search_driver";
     travel.price = data.price;
     travel.distance = data.distance;
-    travel.time = data.time;
+    // travel.time = data.time;
     travel.from = data.from;
     travel.to = data.to;
 
@@ -62,30 +72,6 @@ export class TravelRepository extends Repository<Travel> {
     return travel;
   }
 
-  async _accept(data: {
-    id: string;
-    offer: {
-      price: number;
-      distance: string;
-      time: string;
-      position: { lat: number; lng: number };
-    };
-  }) {
-    const travel = await this._findOne({ id: data.id });
-    if (!travel) throw "travel.accept.travel_not_found";
-
-    travel.accepts.push({
-      price: data.offer.price,
-      distance: data.offer.distance,
-      time: data.offer.time,
-      position: data.offer.position,
-      id: uuidv4() as string,
-      date: new Date(),
-    });
-    await travel.save();
-
-    return travel;
-  }
   async _acceptDriver(data: { id: string; offer: string }) {
     const travel = await this._findOne({ id: data.id });
     if (!travel) throw "travel.acceptDriver.travel_not_found";
@@ -122,10 +108,21 @@ export class TravelRepository extends Repository<Travel> {
       params.ids ||= [];
       params.ids.push(params.id);
     }
-
     if (params.ids) {
       queryBuilder.andWhere(
         `travel.id IN (${params.ids.map((id: string) => `'${id}'`).join(",")})`,
+      );
+    }
+
+
+    if (params.step) {
+      params.steps ||= [];
+      params.steps.push(params.step);
+    }
+
+    if (params.steps) {
+      queryBuilder.andWhere(
+        `travel.step IN (${params.steps.map((step: string) => `'${step}'`).join(",")})`,
       );
     }
 

@@ -400,3 +400,4 @@ dist
 .serverless/**/*.zip
 
 config.rsa.json
+_FILES_
