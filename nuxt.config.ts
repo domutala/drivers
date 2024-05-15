@@ -12,22 +12,16 @@ export default defineNuxtConfig({
     "@vite-pwa/nuxt",
   ],
 
-  plugins: ["~/plugins/map.ts", "~/plugins/mapbox.ts"],
+  plugins: [
+    /*"~/plugins/mapbox.ts"*/
+  ],
 
   components: [{ path: "~/components/ui", global: true, prefix: "ui" }],
 
   css: [
-    "mapbox-gl/dist/mapbox-gl.css",
+    // "mapbox-gl/dist/mapbox-gl.css",
     "animate.css/animate.min.css",
     "@flaticon/flaticon-uicons/css/all/all.css",
     "~/assets/styles/main.scss",
   ],
-
-  pwa: {
-    manifest: {
-      name: "Stream",
-      short_name: "Stream",
-      theme_color: "#ff9d00",
-    },
-  },
 });
