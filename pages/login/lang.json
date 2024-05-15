@@ -1,0 +1,36 @@
+{
+  "fr": {
+    "login": {
+      "title": "S'identifier",
+      "submit": { "text": "Suivant" },
+      "termsOfUse": {
+        "text": "En poursuivant, vous acceptez les conditions d'utilisation."
+      }
+    },
+    "validation": {
+      "title": "Validation",
+      "submit": { "text": "Valider" },
+      "resendCode": {
+        "in": "Vous pouvez renvoyer le code de validation dans {time}",
+        "text": "Renvoyer le code"
+      }
+    }
+  },
+  "en": {
+    "login": {
+      "title": "Lgoin",
+      "submit": { "text": "Next" },
+      "termsOfUse": {
+        "text": "By continuing, you agree to the terms of use."
+      }
+    },
+    "validation": {
+      "title": "Validation",
+      "submit": { "text": "Validate" },
+      "resendCode": {
+        "in": "You can return the validation code to {time}",
+        "text": "Resend code"
+      }
+    }
+  }
+}

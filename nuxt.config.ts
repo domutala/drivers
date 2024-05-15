@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     "@pinia-plugin-persistedstate/nuxt",
     "@nuxtjs/svg-sprite",
     "@vite-pwa/nuxt",
+    "@nuxtjs/i18n",
   ],
 
   plugins: [
@@ -24,4 +25,13 @@ export default defineNuxtConfig({
     "@flaticon/flaticon-uicons/css/all/all.css",
     "~/assets/styles/main.scss",
   ],
+
+  i18n: {
+    strategy: "no_prefix",
+    dynamicRouteParams: false,
+    locales: [
+      { code: "fr", name: "Français", file: "./locale/fr.lang.json" },
+      { code: "en", name: "English", file: "./locale/en.lang.json" },
+    ],
+  },
 });
