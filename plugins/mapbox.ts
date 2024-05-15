@@ -1,6 +1,5 @@
 import mapboxgl from "mapbox-gl";
 import Axios from "axios";
-// import "mapbox-gl/dist/mapbox-gl.css";
 
 export default defineNuxtPlugin({
   name: "mapbox",
@@ -53,11 +52,11 @@ export default defineNuxtPlugin({
                 d="M2.73 52.205c-2.812 5.628 2.918 11.713 8.704 9.232L28.06 54.31a10 10 0 0 1 7.88 0l16.626 7.128c5.786 2.48 11.516-3.604 8.703-9.232L38.042 5.735c-2.49-4.98-9.595-4.98-12.084 0z" stroke="#ffffff" stroke-width="5"></path>
             </g>
           </svg>
-          `
+          `;
 
-          navigation.innerHTML = icon
+          navigation.innerHTML = icon;
 
-          return div
+          return div;
         },
 
         radar() {
@@ -81,15 +80,18 @@ export default defineNuxtPlugin({
         },
       },
 
-      calculateBearing(position: { lat: number, lng: number }, route: IMapRoute) {
+      calculateBearing(
+        position: { lat: number; lng: number },
+        route: IMapRoute
+      ) {
         // Fonction utilitaire pour convertir degrés en radians
         const toRadians = (degrees: any) => {
-          return degrees * Math.PI / 180;
+          return (degrees * Math.PI) / 180;
         };
 
         // Fonction utilitaire pour convertir radians en degrés
         const toDegrees = (radians: any) => {
-          return radians * 180 / Math.PI;
+          return (radians * 180) / Math.PI;
         };
 
         const start = position;
@@ -103,7 +105,9 @@ export default defineNuxtPlugin({
         const dLng = endLng - startLng;
 
         const y = Math.sin(dLng) * Math.cos(endLat);
-        const x = Math.cos(startLat) * Math.sin(endLat) - Math.sin(startLat) * Math.cos(endLat) * Math.cos(dLng);
+        const x =
+          Math.cos(startLat) * Math.sin(endLat) -
+          Math.sin(startLat) * Math.cos(endLat) * Math.cos(dLng);
 
         const bearing = Math.atan2(y, x);
         return (toDegrees(bearing) + 360) % 360;

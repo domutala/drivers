@@ -58,9 +58,9 @@ async function init() {
 }
 
 watch(() => Store.position.position.current, () => {
-  // departure.value = Store.position.position.current
-  // routeCovered.value.features[0].geometry.coordinates.push([departure.value.lng, departure.value.lat])
-  // updateRoute()
+  departure.value = Store.position.position.current
+  routeCovered.value.features[0].geometry.coordinates.push([departure.value.lng, departure.value.lat])
+  updateRoute()
 }, { deep: true })
 
 function updatePosition() {
@@ -88,6 +88,8 @@ async function updateRoute() {
     destination: destination.value,
   });
   route.value = routes[0]
+
+  // Socket.emit('travel:update-route', { route: route.value, covered: routeCovered.value })
 
   if (map.value.getLayer("line")) map.value.removeLayer("line");
   if (map.value.getSource("line")) map.value.removeSource("line");
@@ -140,8 +142,6 @@ function flyto() {
     duration: 0,
   });
 }
-
-
 
 </script>
 

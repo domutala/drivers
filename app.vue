@@ -3,7 +3,8 @@ import { StatusBar, Style } from "@capacitor/status-bar";
 import cPositionAsk from "~/components/position-ask.vue";
 import cNoAvailable from "~/components/no-available.vue";
 
-import cGeoRoute from '~/components/geo-route/index.vue';
+import cGeoRoute from "~/components/geo-route/index.vue";
+import cTravelDisplay from "~/components/travel/display.vue";
 
 const theme = useTheme();
 const initing = ref(false);
@@ -16,7 +17,9 @@ async function step1() {
     await StatusBar.setBackgroundColor({ color: "#00000000" });
     await Cap.plugins.fullscreen.enable({ mode: "status-bar" });
     await StatusBar.setOverlaysWebView({ overlay: true });
-    await StatusBar.setStyle({ style: Store.app.usedTheme === 'light' ? Style.Light : Style.Dark });
+    await StatusBar.setStyle({
+      style: Store.app.usedTheme === "light" ? Style.Light : Style.Dark,
+    });
   });
   Theme.init();
   await Store.app.init();
@@ -45,21 +48,25 @@ onMounted(async () => {
 
 <template>
   <v-app>
-    <div v-if="initing" style="
+    <div
+      v-if="initing"
+      style="
         width: 100%;
         height: 100%;
         position: fixed;
         display: flex;
         align-items: center;
         justify-content: center;
-      ">
+      "
+    >
       <v-progress-circular indeterminate :size="43" :width="5" />
     </div>
     <c-position-ask v-else-if="!Store.position.position.authorized" />
     <c-no-available v-else-if="!Store.app.available" />
     <div v-else>
       <!-- <nuxt-page /> -->
-      <c-geo-route />
+      <!-- <c-geo-route /> -->
+      <c-travel-display />
     </div>
   </v-app>
 </template>
