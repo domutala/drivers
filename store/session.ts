@@ -1,5 +1,7 @@
 import { defineStore } from "pinia";
 import type { ISession } from "~/models";
+import { beforeRestore } from "~/utils/Store";
+import { v4 as uuidv4 } from "uuid";
 
 const store = defineStore(
   "session",
@@ -21,6 +23,8 @@ const store = defineStore(
         set({ keys });
       }
 
+      if (!session.value.id) set({ id: uuidv4() });
+
       await Socket.connect();
       const response = await Socket.emit("session/init", {
         publicKey: session.value.keys?.public,
@@ -34,8 +38,6 @@ const store = defineStore(
         user: response.user,
         status: response.status,
       });
-
-      await Socket.connect();
     }
 
     async function login(phonenumber: string) {
@@ -72,7 +74,7 @@ const store = defineStore(
       init,
     };
   },
-  { persist: true }
+  { persist: { beforeRestore } }
 );
 
 export default store;

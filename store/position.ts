@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { Geolocation } from "@capacitor/geolocation";
 import { Capacitor } from "@capacitor/core";
+import { beforeRestore } from "~/utils/Store";
 
 export interface IPosition {
   authorized: boolean;
@@ -83,7 +84,7 @@ const store = defineStore(
       init,
     };
   },
-  { persist: true }
+  { persist: { beforeRestore } }
 );
 
 export default store;

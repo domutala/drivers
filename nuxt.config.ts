@@ -14,6 +14,7 @@ export default defineNuxtConfig({
   ],
 
   plugins: [
+    "~/plugins/store.ts",
     /*"~/plugins/mapbox.ts"*/
   ],
 
