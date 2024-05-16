@@ -1,0 +1,19 @@
+{
+  "fr": {
+    "profile": {
+      "title": "Modfifier votre profil"
+    },
+    "share": {
+      "title": "Partager"
+    }
+  },
+
+  "en": {
+    "profile": {
+      "title": "Update your profile"
+    },
+    "share": {
+      "title": "Share"
+    }
+  }
+}

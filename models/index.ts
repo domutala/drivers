@@ -13,6 +13,10 @@ export interface IUser {
   details: {
     name: string;
   };
+  preferences: {
+    mode: null | "dark" | "light";
+    lang: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }

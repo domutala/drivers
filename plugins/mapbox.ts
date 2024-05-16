@@ -118,9 +118,9 @@ export default defineNuxtPlugin({
           "https://api.mapbox.com/search/searchbox/v1/suggest",
           {
             params: {
-              language: Store.app.details.lang,
-              country: Store.app.details.country,
-              proximity: `${Store.position.position.current.lng},${Store.position.position.current.lat}`,
+              language: Store.app.lang.code,
+              country: "sn", // Store.app.details.country
+              proximity: `${Store.position.position.lng},${Store.position.position.lat}`,
               session_token: "07a290ed-2d48-4e21-88f0-d2d49560c871",
               access_token: mapboxgl.accessToken,
               q: q.split(" ").join("+"),

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import cMenu from "~/components/menu.vue";
-
 const { $router } = useNuxtApp();
 const wait = ref(false);
 
