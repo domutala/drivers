@@ -4,4 +4,13 @@ export default {
       setTimeout(() => resolve(true), time);
     });
   },
+
+  share(text: string, title?: string, mimetype?: string) {
+    // const share = navigator.share as (
+    //   text: string,
+    //   title?: string,
+    //   mimetype?: string
+    // ) => void;
+    // share(text, title, mimetype);
+  },
 };

@@ -10,6 +10,7 @@
     "validation": {
       "title": "Validation",
       "submit": { "text": "Valider" },
+      "restart": { "text": "Recommencer" },
       "resendCode": {
         "in": "Vous pouvez renvoyer le code de validation dans {time}",
         "text": "Renvoyer le code"
@@ -27,6 +28,7 @@
     "validation": {
       "title": "Validation",
       "submit": { "text": "Validate" },
+      "restart": { "text": "Start again" },
       "resendCode": {
         "in": "You can return the validation code to {time}",
         "text": "Resend code"

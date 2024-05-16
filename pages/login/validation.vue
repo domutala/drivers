@@ -1,12 +1,28 @@
 <script lang="ts" setup>
+const { $router } = useNuxtApp();
 const { t } = useI18n({ useScope: "local" });
 const data = ref({ code: "" });
 const submitting = ref(false);
 const resendCodeUntil = ref({ time: 0 });
 
-function submit() {
+onMounted(mounted);
+function mounted() {
+  if (Store.session.session.status !== "tobevalidate") {
+    $router.replace({ name: "console" });
+  }
+}
+
+async function submit() {
   if (submitting.value) return;
   if (data.value.code.length !== 6) return;
+  submitting.value = true;
+
+  try {
+    await Store.session.validate(data.value.code);
+    $router.replace({ name: "console" });
+  } finally {
+    submitting.value = false;
+  }
 }
 
 onMounted(() => {
@@ -22,9 +38,13 @@ function setTimeToResendCode() {
   }, 1000);
 }
 
-function resendCode() {
-  resendCodeUntil.value.time = 60;
-  setTimeToResendCode();
+async function resendCode() {
+  try {
+    await Socket.emit("session/resend-code-validation");
+    resendCodeUntil.value.time = 60;
+    setTimeToResendCode();
+  } finally {
+  }
 }
 </script>
 
@@ -79,7 +99,10 @@ function resendCode() {
           </div>
         </div>
 
-        <div style="width: 250px; max-width: 80%" class="mx-auto mb-5">
+        <div
+          style="width: 250px; max-width: 80%"
+          class="mx-auto d-flex flex-column ga-2 mb-5"
+        >
           <v-btn
             size="x-large"
             rounded="pill"
@@ -90,22 +113,26 @@ function resendCode() {
           >
             {{ t("validation.submit.text") }}
           </v-btn>
+
+          <v-btn
+            class="mx-auto"
+            size="x-small"
+            rounded="pill"
+            color="dark"
+            variant="text"
+            :disabled="submitting"
+            @click="$router.replace({ name: 'login' })"
+          >
+            <template #prepend>
+              <i class="fi fi-rr-arrow-left"></i>
+            </template>
+
+            {{ t("validation.restart.text") }}
+          </v-btn>
         </div>
       </div>
     </v-form>
   </ui-page>
 </template>
-
-<style lang="scss">
-.pg-login__input {
-  position: relative;
-  border-radius: 16em;
-  background-color: rgba(var(--v-theme-on-background), 0.08);
-
-  &:focus-within {
-    background-color: rgba(var(--v-theme-on-background), 0.1);
-  }
-}
-</style>
 
 <i18n src="./lang.json"></i18n>
