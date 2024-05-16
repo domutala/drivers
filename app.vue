@@ -26,12 +26,6 @@ async function mounted() {
 
 <template>
   <c-app-setter ref="appSetter" />
-  <span v-if="initing">
-    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquid cum magni
-    placeat deserunt aspernatur error explicabo vitae distinctio, laborum
-    pariatur ea fuga blanditiis ut quos iure? Illum nostrum vel accusamus!
-    {{ initing }}
-  </span>
-  <!-- <ui-logo-page v-if="initing" /> -->
+  <ui-logo-page v-if="initing" />
   <nuxt-page v-else />
 </template>

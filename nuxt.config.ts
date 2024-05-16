@@ -13,10 +13,7 @@ export default defineNuxtConfig({
     "@nuxtjs/i18n",
   ],
 
-  plugins: [
-    "~/plugins/store.ts",
-    /*"~/plugins/mapbox.ts"*/
-  ],
+  plugins: ["~/plugins/mapbox.ts", "~/plugins/store.ts"],
 
   components: [{ path: "~/components/ui", global: true, prefix: "ui" }],
 

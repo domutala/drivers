@@ -45,5 +45,22 @@ export default {
     VSelect: {
       variant: "outlined",
     },
+    VBottomSheet: {
+      color: "background",
+      bgColor: "background",
+      inset: true,
+      contentProps: {
+        style: {
+          overflow: "hidden",
+          maxHeight: "80lvh",
+          borderTopRightRadius: "1.6em",
+          borderTopLeftRadius: "1.6em",
+        },
+      },
+
+      VCard: {
+        color: "background",
+      },
+    },
   },
 } satisfies ExternalVuetifyOptions;

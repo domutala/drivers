@@ -11,6 +11,18 @@ const store = defineStore(
 
     function set(value: Partial<ISession>) {
       session.value = { ...session.value, ...value };
+
+      if (session.value.user) {
+        if (session.value.user.preferences.lang !== undefined) {
+          const { $i18n } = useNuxtApp();
+          $i18n.setLocale(session.value.user.preferences.lang);
+          Store.app.setLang(session.value.user.preferences.lang);
+        }
+
+        if (session.value.user.preferences.mode !== undefined) {
+          Store.app.setMode(session.value.user.preferences.mode);
+        }
+      }
     }
 
     function setInited(value: boolean) {
@@ -27,6 +39,7 @@ const store = defineStore(
 
       await Socket.connect();
       const response = await Socket.emit("session/init", {
+        id: session.value.id,
         publicKey: session.value.keys?.public,
         sokcet: Socket.socket.id,
         // position: Store.position.position.current,
@@ -55,6 +68,15 @@ const store = defineStore(
       set(response);
     }
 
+    const user = {
+      async updatePreferences(params: { [key: string]: any }) {
+        const response = await Socket.emit("user/update-preferences", params);
+        set({ user: response });
+
+        return response;
+      },
+    };
+
     function clean() {
       session.value = {};
       // Socket.connect(true);
@@ -69,6 +91,8 @@ const store = defineStore(
 
       login,
       validate,
+
+      user,
 
       clean,
       init,
