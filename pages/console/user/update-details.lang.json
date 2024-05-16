@@ -1,0 +1,10 @@
+{
+  "fr": {
+    "name": "Votre nom",
+    "submit": "Enregistrer"
+  },
+  "en": {
+    "name": "Your name",
+    "submit": "Save"
+  }
+}

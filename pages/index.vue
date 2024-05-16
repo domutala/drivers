@@ -3,7 +3,7 @@ const { $router } = useNuxtApp();
 
 onMounted(mounted);
 async function mounted() {
-  $router.replace({ name: "login-validation" });
+  $router.replace({ name: "console" });
 }
 </script>
 

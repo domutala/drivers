@@ -2,27 +2,50 @@
 import { AsYouType } from "libphonenumber-js";
 
 const { t } = useI18n({ useScope: "local" });
-const data = ref({ phonenumber: "" });
+const { $router } = useNuxtApp();
 const isPhonenumberValid = ref(false);
 const submitting = ref(false);
+const initing = ref(true);
 
-watch(() => data.value.phonenumber, reformat);
+const codeCountry = "sn";
+const asYouType = ref(new AsYouType(codeCountry.toUpperCase() as "SN"));
+const phonenumber = ref("");
+
+onMounted(mounted);
+function mounted() {
+  initing.value = true;
+  // Store.session.clean();
+
+  setTimeout(async () => {
+    await Store.session.init();
+    initing.value = false;
+  }, 500);
+}
+
+watch(() => phonenumber.value, reformat);
 function reformat() {
-  const asYouType = new AsYouType("SN");
-  data.value.phonenumber = asYouType.input(data.value.phonenumber);
-  isPhonenumberValid.value = asYouType.isValid();
-
+  asYouType.value.reset();
+  const _m = asYouType.value.input(phonenumber.value);
+  isPhonenumberValid.value = asYouType.value.isValid();
+  phonenumber.value = _m;
   // template.value = asYouType.getTemplate();
 }
 
-function submit() {
+async function submit() {
   if (submitting.value) return;
   if (!isPhonenumberValid.value) return;
+
+  const number = asYouType.value.getNumber();
+  if (!number) return;
+
+  await Store.session.login(number.number);
+  $router.replace({ name: "console" });
 }
 </script>
 
 <template>
-  <ui-page extend-body>
+  <ui-loading-page v-if="initing" />
+  <ui-page v-else extend-body>
     <v-form @submit.prevent="submit" class="h-screen">
       <div
         style="width: 86%; max-width: 552px"
@@ -34,7 +57,7 @@ function submit() {
         <div class="my-auto">
           <div class="pg-login__input">
             <input
-              v-model="data.phonenumber"
+              v-model="phonenumber"
               type="tel"
               maxlength="12"
               placeholder="70 700 00 00"

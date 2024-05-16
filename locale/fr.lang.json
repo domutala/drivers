@@ -1,3 +1,7 @@
 {
-  "welcome": "Bienvenue"
+  "welcome": "Bienvenue",
+
+  "error": {
+    "field_required": "Ce champ est requis"
+  }
 }
