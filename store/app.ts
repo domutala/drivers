@@ -1,6 +1,7 @@
 import { Device } from "@capacitor/device";
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { beforeRestore } from "~/utils/Store";
 
 export interface IAppMode {
   value: "light" | "dark" | null;
@@ -57,7 +58,7 @@ const store = defineStore(
 
     return { statusBar, setStatusBar, mode, setMode, lang, setLang, init };
   },
-  { persist: true }
+  { persist: { beforeRestore } }
 );
 
 export default store;
