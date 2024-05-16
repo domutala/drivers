@@ -23,6 +23,7 @@
     "@capacitor/device": "^6.0.0",
     "@capacitor/geolocation": "^6.0.0",
     "@capacitor/keyboard": "^6.0.0",
+    "@capacitor/preferences": "^6.0.0",
     "@capacitor/screen-orientation": "^5.0.7",
     "@capacitor/status-bar": "github:ramlan442/capacitor-status-bar-height",
     "@flaticon/flaticon-uicons": "^3.1.0",

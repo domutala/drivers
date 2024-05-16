@@ -1090,6 +1090,11 @@
   resolved "https://registry.yarnpkg.com/@capacitor/keyboard/-/keyboard-6.0.0.tgz#9a09244f0c9cadaf5339b61040cb81e1ceccdfbb"
   integrity sha512-pPX/PQWWjw5ce47kHEYv6IWlHzuhAxgXihqEAAAGLdwK3u3srgGWCljXrYS9juVBPi/lA1uK7UaUzYI0XrgxVQ==
 
+"@capacitor/preferences@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/preferences/-/preferences-6.0.0.tgz#ebdce95b04d584bb731fd03aa4265ac2944e1208"
+  integrity sha512-4A49UKEc/sgf28TFNwRX4Kx6G0oMeRC9btA2voaEuL2LZd2l8IMfAEFDIrfQWi5rYE6RWenEUexUTyiEZnYFvQ==
+
 "@capacitor/screen-orientation@^5.0.7":
   version "5.0.7"
   resolved "https://registry.yarnpkg.com/@capacitor/screen-orientation/-/screen-orientation-5.0.7.tgz#cdcf6b40508205594c8b5ac109bd1c80888ab6ae"
