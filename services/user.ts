@@ -1,23 +1,17 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { REQUEST } from "@nestjs/core";
-import { User } from "database/entitys/User";
 import { UserRepository } from "database/repositorys/User";
-import { Request } from "express";
+import { Socket } from "socket.io";
 
 @Injectable()
 export class UserService {
-  constructor(
-    @Inject(REQUEST) private request: Request,
-    private userRepository: UserRepository,
-  ) {}
+  constructor() {}
 
-  async password(params: { passwords: [string, string] }) {
-    const user = await this.userRepository._password(
-      this.request.session.user,
-      params.passwords,
-    );
+  @Inject() private repository: UserRepository;
 
-    delete user.passwords;
-    return user;
+  async updateDetails(socket: Socket, data: { [x: string]: any }) {
+    return await this.repository._updateDetails({
+      ...data,
+      id: socket.request.session.user,
+    });
   }
 }

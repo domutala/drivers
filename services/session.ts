@@ -4,6 +4,7 @@ import { SessionRepository } from "database/repositorys/Session";
 import { UserRepository } from "database/repositorys/User";
 import { Request } from "express";
 import { Server, Socket } from "socket.io";
+import * as randomatic from "randomatic";
 import forge from "utils/forge";
 
 @Injectable()
@@ -14,13 +15,6 @@ export class SessionService {
   @Inject() private sessionRepository: SessionRepository;
 
   server: Server;
-
-  initInterceptor() {
-    this.server.use(async (client, next) => {
-      client = await this.decode(client);
-      next();
-    });
-  }
 
   async init(client: Socket, params: { publicKey: string }) {
     if (!params.publicKey) throw "session.init.publicKey_is_required";
@@ -34,45 +28,101 @@ export class SessionService {
     }
     return {
       id: { _RSA_ENCODED_: id },
-      publicKey: forge.keys.public,
+      status: client.request.session?.status,
       user: client.request.session?._user,
-      available: true,
-      details: {
-        country: "ma",
-        lang: "fr",
-      },
+      publicKey: forge.keys.public,
+      details: { country: "sn", available: true },
     };
   }
 
-  async myPosition(client: Socket, data: { lat: number; lng: number }) {
-    if (typeof data.lat !== "number" || typeof data.lng !== "number") {
-      throw "session.myPosition.invalid_data";
+  async login(client: Socket, params: { phonenumber: string }) {
+    if (!client.request.session) {
+      throw "session.login.session_is_required";
     }
 
-    client.request.session.position = data;
+    // already logged
+    if (!client.request.session.user) {
+      let user = await this.userRepository._findOne({
+        phonenumber: params.phonenumber,
+      });
 
-    return data;
-  }
+      // créer un nouvel utlisateur
+      if (!user) {
+        user = await this.userRepository._add({
+          phonenumber: params.phonenumber,
+        });
+      }
 
-  async decode(client: Socket) {
-    let token = client.request.headers.authorization;
+      const otp = randomatic("0", 6);
+      const optEncrypt = forge.encrypter(otp);
 
-    if (token) {
-      token = token.split(" ").pop();
-      const session = await this.sessionRepository._findOne({ id: token });
+      const session = await this.sessionRepository._update({
+        id: client.request.session.id,
+        user: user.id,
+        status: "tobevalidate",
+        validationCode: Array.isArray(optEncrypt) ? optEncrypt : [optEncrypt],
+      });
 
-      if (session) {
-        client.request.session = session as any;
+      client.request.session = { ...session, _user: user } as any;
 
-        if (session.user) {
-          client.request.session._user = await this.userRepository._findOne({
-            id: session.user,
-          });
-        }
+      if (process.env.NODE_ENV !== "production") {
+        Logger.log(`otp: ${otp}`);
       }
     }
 
-    return client;
+    return {
+      status: client.request.session.status,
+      user: client.request.session._user,
+    };
+  }
+
+  async resendCodeValidation(client: Socket, params: { phonenumber: string }) {
+    if (!client.request.session) {
+      throw "session.login.session_is_required";
+    }
+
+    if (client.request.session.status !== "tobevalidate") {
+      throw "session.login.session_cannot_be_validate";
+    }
+
+    const otp = randomatic("0", 6);
+    const optEncrypt = forge.encrypter(otp);
+
+    const session = await this.sessionRepository._update({
+      id: client.request.session.id,
+      validationCode: Array.isArray(optEncrypt) ? optEncrypt : [optEncrypt],
+    });
+
+    client.request.session = session as any;
+
+    if (process.env.NODE_ENV !== "production") {
+      Logger.log(`otp: ${otp}`);
+    }
+
+    return {};
+  }
+
+  async validate(client: Socket, params: { code: string }) {
+    if (!client.request.session) {
+      throw "session.login.validate.session_is_required";
+    }
+
+    if (client.request.session.status !== "tobevalidate") {
+      throw "session.login.validate.session_cannot_be_validate";
+    }
+
+    const optEncrypt = client.request.session.validationCode;
+    const otp = forge.decrypter(optEncrypt);
+    if (otp !== params.code) throw "session.login.validate.invalid_code";
+
+    const session = await this.sessionRepository._update({
+      id: client.request.session.id,
+      status: "valid",
+    });
+
+    client.request.session = session as any;
+
+    return { status: client.request.session.status };
   }
 
   async get(params: { [x: string]: any } = {}) {

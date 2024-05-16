@@ -10,7 +10,7 @@ import { Server, Socket } from "socket.io";
 
 @WebSocketGateway()
 export class SessionGateway implements OnGatewayInit {
-  constructor() {} // @Inject() private readonly service: SessionService
+  constructor() {}
 
   @WebSocketServer()
   server: Server;
@@ -19,16 +19,23 @@ export class SessionGateway implements OnGatewayInit {
 
   afterInit() {
     this.service.server = this.server;
-    this.service.initInterceptor();
   }
 
-  @SubscribeMessage("session-init")
+  @SubscribeMessage("session/init")
   async init(client: Socket, data: any) {
     return await this.service.init(client, data);
   }
 
-  @SubscribeMessage("session-my-position")
-  async myPosition(client: Socket, data: any) {
-    return await this.service.myPosition(client, data);
+  @SubscribeMessage("session/login")
+  async login(client: Socket, data: any) {
+    return await this.service.login(client, data);
+  }
+  @SubscribeMessage("session/resend-code-validation")
+  async resendCodeValidation(client: Socket, data: any) {
+    return await this.service.resendCodeValidation(client, data);
+  }
+  @SubscribeMessage("session/validate")
+  async validate(client: Socket, data: any) {
+    return await this.service.validate(client, data);
   }
 }

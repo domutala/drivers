@@ -12,42 +12,10 @@ export class UserRepository extends Repository<User> {
 
   async _add(params: { [key: string]: any }) {
     const user = new User();
-
-    user.username = randomatic("Aa0", 8);
-
-    user.passwords ||= [];
-    const password = randomatic("Aa0!", 8);
-    user.passwords.push(forge.encrypter(password));
+    user.phonenumber = params.phonenumber;
 
     await user.save();
 
-    if (process.env.NODE_ENV !== "production") {
-      Logger.log(`email: \x1b[33m ${user.username}`);
-      Logger.log(`password: \x1b[33m ${password}`);
-    } else {
-      /** TODO: Envoyer par mail l'email et le mot de passe */
-    }
-
-    return user;
-  }
-
-  async _password(id: string, passwords: [string, string]) {
-    const user = await this._findOne({ id });
-    if (!user) throw "user.updatePassword.not_found";
-
-    if (passwords[0] !== passwords[1]) {
-      throw "user.updatePassword.passwords_not_equal";
-    }
-
-    const regex =
-      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]).{8,}$/;
-    if (!regex.test(passwords[0])) {
-      throw "user.updatePassword.passwords_not_valid";
-    }
-
-    user.passwords.push(forge.encrypter(passwords[0]));
-
-    await user.save();
     return user;
   }
 
@@ -72,22 +40,20 @@ export class UserRepository extends Repository<User> {
       params.ids ||= [];
       params.ids.push(params.id);
     }
-
     if (params.ids) {
       queryBuilder.andWhere(
         `user.id IN (${params.ids.map((id: string) => `'${id}'`).join(",")})`,
       );
     }
 
-    if (params.username) {
-      params.usernames ||= [];
-      params.usernames.push(params.username);
+    if (params.phonenumber) {
+      params.phonenumbers ||= [];
+      params.phonenumbers.push(params.phonenumber);
     }
-
-    if (params.usernames) {
+    if (params.phonenumbers) {
       queryBuilder.andWhere(
-        `user.username IN (${params.usernames
-          .map((username: string) => `'${username}'`)
+        `user.phonenumber IN (${params.phonenumbers
+          .map((phonenumber: string) => `'${phonenumber}'`)
           .join(",")})`,
       );
     }
@@ -97,8 +63,23 @@ export class UserRepository extends Repository<User> {
     return users;
   }
 
+  async _updateDetails(params: { [x: string]: any }) {
+    const user = await this._findOne({ id: params.id });
+    if (!user) throw "user.update.user_not_found";
+
+    if (params.name !== undefined && typeof params.name !== "string") {
+      throw "user.update.name_invalid";
+    }
+
+    user.details.name = params.name || user.details.name;
+
+    await user.save();
+
+    return user;
+  }
+
   async _remove(id: string) {
-    if (!(await this._findOne({ id }))) throw "user.remove.not_found";
+    if (!(await this._findOne({ id }))) throw "user.remove.user_not_found";
     await this.delete({ id });
   }
 }

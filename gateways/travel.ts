@@ -1,6 +1,6 @@
 import { Inject } from "@nestjs/common";
 import { CronExpression, SchedulerRegistry } from "@nestjs/schedule";
-import * as cron from 'node-cron'
+import * as cron from "node-cron";
 import {
   OnGatewayInit,
   SubscribeMessage,
@@ -17,13 +17,13 @@ export class TravelGateway implements OnGatewayInit {
   server: Server;
 
   @Inject() private readonly service: TravelService;
-  @Inject() private schedulerRegistry: SchedulerRegistry
+  @Inject() private schedulerRegistry: SchedulerRegistry;
 
   afterInit() {
     this.service.server = this.server;
 
-    cron.schedule(CronExpression.EVERY_30_SECONDS, this.service.clean)
-    this.service.clean()
+    cron.schedule(CronExpression.EVERY_30_SECONDS, this.service.clean);
+    this.service.clean();
   }
 
   @SubscribeMessage("travel:define-route")
@@ -47,10 +47,14 @@ export class TravelGateway implements OnGatewayInit {
     return await this.service.driverAccept(client, data);
   }
 
-
   @SubscribeMessage("travel:traveller-accept-driver")
   async travellerAcceptDriver(client: Socket, data: any) {
     return await this.service.travellerAcceptDriver(client, data);
+  }
+
+  @SubscribeMessage("travel:traveller:get-travels")
+  async travellerGetTravels(client: Socket, data: any) {
+    return await this.service.travellerGetTravels(client, data);
   }
 
   // ***************

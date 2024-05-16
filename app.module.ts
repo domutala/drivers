@@ -9,6 +9,7 @@ import { TravelModule } from "modules/travel";
 import { HttpModule } from "@nestjs/axios";
 import { FyleModule } from "modules/fyle";
 import { ScheduleModule } from "@nestjs/schedule";
+import { UserModule } from "modules/user";
 
 @Module({
   imports: [
@@ -17,13 +18,11 @@ import { ScheduleModule } from "@nestjs/schedule";
     TypeOrmModule.forRoot({ ...ConfigDatabase(), autoLoadEntities: true }),
     SessionModule,
     TravelModule,
-    FyleModule
+    FyleModule,
+    UserModule,
   ],
 
   controllers: [],
-
-  // providers: [UserRepository, UserService],
-
   exports: [],
 })
-export class AppModule { }
+export class AppModule {}

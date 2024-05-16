@@ -14,7 +14,11 @@ import {
 } from "rxjs/operators";
 import { Server, ServerOptions, Socket } from "socket.io";
 import forge from "utils/forge";
-import { HttpException } from "@nestjs/common";
+import { HttpException, Inject } from "@nestjs/common";
+import { SessionRepository } from "database/repositorys/Session";
+import { CreateDatabase } from "database/index";
+import { Session } from "database/entitys/Session";
+import { User } from "database/entitys/User";
 
 export class SocketAdapter extends IoAdapter {
   decrypter(obj?: { [key: string]: any }) {
@@ -59,7 +63,6 @@ export class SocketAdapter extends IoAdapter {
           } else {
             datas._RSA_ENCODED_ = null;
           }
-          console.log();
         } else {
           for (const key in datas) {
             datas[key] = _encrypter(datas[key]);
@@ -71,6 +74,27 @@ export class SocketAdapter extends IoAdapter {
     };
 
     return _encrypter(obj);
+  }
+
+  async decode(token: string) {
+    if (token) {
+      token = token.split(" ").pop();
+
+      const database = await CreateDatabase();
+      const sessionRepository = database.getRepository(Session);
+      const userRepository = database.getRepository(User);
+      const session = await sessionRepository.findOneBy({ id: token });
+
+      if (session) {
+        if (session.user) {
+          session._user = await userRepository.findOneBy({
+            id: session.user,
+          });
+        }
+      }
+
+      return session;
+    }
   }
 
   createIOServer(port: number, options: ServerOptions): any {
@@ -102,9 +126,21 @@ export class SocketAdapter extends IoAdapter {
       first(),
     );
 
-    handlers.forEach(({ message, callback }) => {
+    handlers.forEach(async ({ message, callback }) => {
       const source$ = fromEvent(socket, message).pipe(
+        mergeMap(async (payload: any) => {
+          socket.request.session = await this.decode(
+            socket.request.headers.authorization,
+          );
+
+          return payload;
+        }),
         mergeMap((payload: any) => {
+          if (socket.request.session) {
+            if (["closed", "expired"].includes(socket.request.session.status)) {
+              return sendError(`session_is_${socket.request.session.status}`);
+            }
+          }
           // eslint-disable-next-line prefer-const
           let { data, ack } = this.mapPayload(payload);
           data = this.decrypter(data);
@@ -117,6 +153,7 @@ export class SocketAdapter extends IoAdapter {
         }),
         takeUntil(disconnect$),
       );
+
       source$.subscribe(([response, ack]) => {
         if (response instanceof Error) {
           socket.emit("error", response.message);

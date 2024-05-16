@@ -55,9 +55,6 @@ function generate() {
     JSON.stringify({ public: publicKey, private: privateKey }),
   );
 
-  writeFileSync(join(process.cwd(), "keys/public.pem"), publicKey);
-  writeFileSync(join(process.cwd(), "keys/private.pem"), privateKey);
-
   return { public: publicKey, private: privateKey };
 }
 

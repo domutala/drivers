@@ -1,12 +1,15 @@
 import { Session } from "database/entitys/Session";
 import { DataSource, Repository } from "typeorm";
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
+import { UserRepository } from "./User";
 
 @Injectable()
 export class SessionRepository extends Repository<Session> {
   constructor(dataSource: DataSource) {
     super(Session, dataSource.createEntityManager());
   }
+
+  @Inject() private readonly userRepository: UserRepository;
 
   async _create(publicKey: string) {
     const session = new Session();
@@ -35,7 +38,17 @@ export class SessionRepository extends Repository<Session> {
 
     if (params.id) queryBuilder.andWhere(`session.id = '${params.id}'`);
 
-    return await queryBuilder.getMany();
+    const sessions = await queryBuilder.getMany();
+
+    for (let i = 0; i < sessions.length; i++) {
+      if (sessions[i].user) {
+        sessions[i]._user = await this.userRepository._findOne({
+          id: sessions[i].user,
+        });
+      }
+    }
+
+    return sessions;
   }
 
   async _update(_session: Partial<Session>) {
@@ -44,7 +57,8 @@ export class SessionRepository extends Repository<Session> {
 
     session.user = _session.user || session.user;
     session.lastUseAt = _session.lastUseAt || session.lastUseAt;
-    session.state = _session.state || session.state;
+    session.validationCode = _session.validationCode || session.validationCode;
+    session.status = _session.status || session.status;
 
     await session.save();
     return session;
