@@ -21,6 +21,8 @@ function mounted() {
       return $router.replace({ name: "console-user-update-details" });
     }
   }
+
+  $router.replace({ name: "console-traveller" });
 }
 </script>
 

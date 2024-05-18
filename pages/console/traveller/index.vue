@@ -1,7 +1,15 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import cDefineRoute from "./-define-route/index.vue";
+</script>
 
 <template>
-  <ui-page>
+  <ui-page extend-body>
+    <ui-map>
+      <template #bottom="{ map }">
+        <c-define-route v-if="map" :map="map" />
+      </template>
+    </ui-map>
+
     <div
       :style="{ top: `${Store.app.statusBar.height + 20}px` }"
       style="position: fixed; right: 20px"
