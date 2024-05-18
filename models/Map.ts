@@ -1,4 +1,4 @@
-interface IMapRoute {
+export interface IMapRoute {
   geojson: {
     type: string;
     features: {
@@ -14,4 +14,11 @@ interface IMapRoute {
     price: { amount: number; traveller: 0; driver: 0; currency: string };
     bounds: [[number, number], [number, number]];
   };
+}
+
+export interface IPoint {
+  lat: number;
+  lng: number;
+  name?: string;
+  place: string;
 }

@@ -1,3 +1,7 @@
 {
-  "welcome": "Welcome"
+  "welcome": "Welcome",
+  "street_without_name": "Street with no name",
+  "error": {
+    "field_required": "Required field"
+  }
 }

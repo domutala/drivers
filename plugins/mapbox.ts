@@ -1,5 +1,6 @@
 import mapboxgl from "mapbox-gl";
 import Axios from "axios";
+import type { IMapRoute } from "~/models/Map";
 
 export default defineNuxtPlugin({
   name: "mapbox",
@@ -119,7 +120,7 @@ export default defineNuxtPlugin({
           {
             params: {
               language: Store.app.lang.code,
-              country: "sn", // Store.app.details.country
+              country: "ma", // Store.app.details.country
               proximity: `${Store.position.position.lng},${Store.position.position.lat}`,
               session_token: "07a290ed-2d48-4e21-88f0-d2d49560c871",
               access_token: mapboxgl.accessToken,
@@ -163,7 +164,7 @@ export default defineNuxtPlugin({
         destination: { lat: number; lng: number };
       }) {
         const routes = await Socket.emit<IMapRoute[]>(
-          "travel:define-route",
+          "travel/define-route",
           params
         );
 
