@@ -14,4 +14,11 @@ export class UserService {
       id: socket.request.session.user,
     });
   }
+
+  async updatePreferences(socket: Socket, data: { [x: string]: any }) {
+    return await this.repository._updatePreferences({
+      ...data,
+      id: socket.request.session.user,
+    });
+  }
 }

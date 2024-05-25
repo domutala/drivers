@@ -16,45 +16,37 @@ export class TravelRepository extends Repository<Travel> {
 
   async _create(data: Partial<Travel>) {
     const travel = new Travel();
+    travel.departure = data.departure;
+    travel.destination = data.destination;
     travel.step = "search_driver";
     travel.distance = data.distance;
     travel.duration = data.duration;
     travel.price = data.price;
-    travel.from = data.from;
-    travel.to = data.to;
-    travel.capture = data.capture;
 
     await travel.save();
 
     return travel;
   }
-
-
 
   async _update(data: Partial<Travel>) {
     const travel = await this._findOne({ id: data.id });
     if (!travel) throw "travel.update.travel_not_found";
 
-
     const items = [
-      "step",
-      "from",
-      "to",
+      "departure",
+      "destination",
       "distance",
       "duration",
-      "priced",
       "capture",
-      "time",
       "price",
-    ]
+    ];
 
-    for (const item of items) travel[item] = data[item]
+    for (const item of items) travel[item] = data[item];
 
     await travel.save();
 
     return travel;
   }
-
 
   async _findDriver(data: Partial<Travel>) {
     const travel = await this._findOne({ id: data.id });
@@ -64,8 +56,8 @@ export class TravelRepository extends Repository<Travel> {
     travel.price = data.price;
     travel.distance = data.distance;
     // travel.time = data.time;
-    travel.from = data.from;
-    travel.to = data.to;
+    // travel.from = data.from;
+    // travel.to = data.to;
 
     await travel.save();
 
@@ -113,7 +105,6 @@ export class TravelRepository extends Repository<Travel> {
         `travel.id IN (${params.ids.map((id: string) => `'${id}'`).join(",")})`,
       );
     }
-
 
     if (params.step) {
       params.steps ||= [];

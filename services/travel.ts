@@ -66,39 +66,36 @@ export class TravelService {
     const destination = data.to || data.destination;
     const routes = await mapbox.route({ departure, destination });
     const route = routes.routes[0];
-    const geojson = {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          properties: {},
-          geometry: route.geometry,
-        },
-      ],
-    };
 
     let travel: Travel;
-
     if (data.id) travel = await this.repository._findOne({ id: data.id });
 
     if (!travel) {
       travel = await this.repository._create({
-        from: data.departure,
-        to: data.destination,
+        departure: data.departure,
+        destination: data.destination,
         distance: route.distance,
         duration: route.duration,
         price: data.price,
+        step: "search_driver",
       });
     }
 
     if (data.price) travel.price = data.price;
 
     travel = await this.repository._update(travel);
-
-    // const picture = await mapbox.capture({ ...data, geojson } as any)
-    // const mapFyle = await this.fyleRepository._save({ type: 'image/png', access: ['*'], data: picture })
-
     client.join(travel.id);
+
+    setTimeout(async () => {
+      let _travel = await this.repository._findOne({ id: travel.id });
+      if (_travel.step === "search_driver") {
+        _travel = await this.repository._update({
+          id: _travel.id,
+          step: "define_route",
+        });
+        client.emit("travel_await_driver_expired", _travel);
+      }
+    }, 5000);
 
     return travel;
   }
@@ -109,14 +106,14 @@ export class TravelService {
   }
 
   async clean() {
-    const travels = await this.repository._find({ steps: ["search_driver"] });
-    for (const travel of travels) {
-      const diff = dayjs().diff(travel.updatedAt, "seconds");
-      if (Math.abs(diff) >= 60) {
-        await this.repository._update({ id: travel.id, step: "cancel" });
-        this.server.to(travel.id).emit("travel:cancel", travel);
-      }
-    }
+    // const travels = await this.repository._find({ steps: ["search_driver"] });
+    // for (const travel of travels) {
+    //   const diff = dayjs().diff(travel.updatedAt, "seconds");
+    //   if (Math.abs(diff) >= 60) {
+    //     await this.repository._update({ id: travel.id, step: "cancel" });
+    //     this.server.to(travel.id).emit("travel:cancel", travel);
+    //   }
+    // }
   }
 
   async travellerGetTravels(client: Socket, data: { [key: string]: any }) {

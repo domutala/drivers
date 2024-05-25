@@ -11,9 +11,10 @@ export class SessionRepository extends Repository<Session> {
 
   @Inject() private readonly userRepository: UserRepository;
 
-  async _create(publicKey: string) {
+  async _create(params: { id: string; publicKey: string }) {
     const session = new Session();
-    session.publicKey = publicKey;
+    session.id = params.id;
+    session.publicKey = params.publicKey;
 
     await session.save();
     return session;

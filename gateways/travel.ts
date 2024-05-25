@@ -26,12 +26,12 @@ export class TravelGateway implements OnGatewayInit {
     this.service.clean();
   }
 
-  @SubscribeMessage("travel:define-route")
+  @SubscribeMessage("travel/define-route")
   async defineRoute(client: Socket, data: any) {
     return await this.service.defineRoute(client, data);
   }
 
-  @SubscribeMessage("travel:search-driver")
+  @SubscribeMessage("travel/search-driver")
   async searchDriver(client: Socket, data: any) {
     return await this.service.searchDriver(client, data);
   }

@@ -6,6 +6,7 @@ import { Request } from "express";
 import { Server, Socket } from "socket.io";
 import * as randomatic from "randomatic";
 import forge from "utils/forge";
+import { isUUID } from "class-validator";
 
 @Injectable()
 export class SessionService {
@@ -16,11 +17,13 @@ export class SessionService {
 
   server: Server;
 
-  async init(client: Socket, params: { publicKey: string }) {
+  async init(client: Socket, params: { publicKey: string; id: string }) {
     if (!params.publicKey) throw "session.init.publicKey_is_required";
+    if (!params.id || !isUUID(params.id)) throw "session.init.id_is_required";
+
     let id: string;
     if (!client.request.session) {
-      const session = await this.sessionRepository._create(params.publicKey);
+      const session = await this.sessionRepository._create(params);
       id = session.id;
       client.request.session = session as any;
     } else {

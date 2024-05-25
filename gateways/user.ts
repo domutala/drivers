@@ -20,4 +20,9 @@ export class UserGateway {
   async updateDetails(client: Socket, data: any) {
     return await this.service.updateDetails(client, data);
   }
+
+  @SubscribeMessage("user/update-preferences")
+  async updatePreferences(client: Socket, data: any) {
+    return await this.service.updatePreferences(client, data);
+  }
 }

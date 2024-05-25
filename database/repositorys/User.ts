@@ -78,6 +78,32 @@ export class UserRepository extends Repository<User> {
     return user;
   }
 
+  async _updatePreferences(params: { [x: string]: any }) {
+    const user = await this._findOne({ id: params.id });
+    if (!user) throw "user.update.user_not_found";
+
+    user.preferences ||= {} as any;
+
+    if (params.lang !== undefined) {
+      if (!["fr", "en"].includes(params.lang)) {
+        throw "user.update.preferences.lang_invalid";
+      }
+
+      user.preferences.lang = params.lang;
+    }
+
+    if (params.mode !== undefined) {
+      if (![null, "dark", "light"].includes(params.mode)) {
+        throw "user.update.preferences.mode_invalid";
+      }
+
+      user.preferences.mode = params.mode;
+    }
+
+    await user.save();
+    return user;
+  }
+
   async _remove(id: string) {
     if (!(await this._findOne({ id }))) throw "user.remove.user_not_found";
     await this.delete({ id });

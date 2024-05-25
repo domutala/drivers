@@ -13,4 +13,10 @@ export class User extends Base {
     name: string;
     photo: string;
   };
+
+  @Column({ type: "jsonb", default: {} })
+  preferences: {
+    mode: null | "dark" | "light";
+    lang: string;
+  };
 }
