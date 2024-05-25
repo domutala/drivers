@@ -16,6 +16,7 @@ async function mounted() {
     await appSetter.value?.setter();
     await Store.position.init();
     await Store.session.init();
+    await Store.traveller.init();
 
     Store.session.setInited(true);
   } finally {

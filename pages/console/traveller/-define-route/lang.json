@@ -1,5 +1,13 @@
 {
-  "fr": {},
+  "fr": {
+    "submit": "Trouver un conducteur",
+    "were_do_you_go": "Ou allez-vous?",
+    "starting_point": "Point de départ"
+  },
 
-  "en": {}
+  "en": {
+    "submit": "Find a driver",
+    "were_do_you_go": "Where are you going?",
+    "starting_point": "Starting point"
+  }
 }

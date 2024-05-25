@@ -1,12 +1,22 @@
 <script lang="ts" setup>
 import cDefineRoute from "./-define-route/index.vue";
+import cSearchDriver from "./-search-driver/index.vue";
 </script>
 
 <template>
   <ui-page extend-body>
     <ui-map>
       <template #bottom="{ map }">
-        <c-define-route v-if="map" :map="map" />
+        <span v-if="map">
+          <c-define-route
+            v-if="Store.traveller.current.step === 'define_route'"
+            :map="map"
+          />
+          <c-search-driver
+            v-else-if="Store.traveller.current.step === 'search_driver'"
+            :map="map"
+          />
+        </span>
       </template>
     </ui-map>
 

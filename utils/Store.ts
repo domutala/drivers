@@ -1,6 +1,8 @@
 import app from "~/store/app";
 import session from "~/store/session";
 import position from "~/store/position";
+import traveller from "~/store/traveller";
+
 import type { PiniaPluginContext } from "pinia";
 import { Preferences } from "@capacitor/preferences";
 class Store {
@@ -12,6 +14,9 @@ class Store {
   }
   get position() {
     return position();
+  }
+  get traveller() {
+    return traveller();
   }
 }
 

@@ -3,6 +3,7 @@ const { $router } = useNuxtApp();
 const wait = ref(false);
 
 onMounted(mounted);
+watch(() => $router.currentRoute.value, mounted, { deep: true });
 function mounted() {
   wait.value = true;
 

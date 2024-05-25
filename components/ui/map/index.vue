@@ -10,26 +10,35 @@ const props = defineProps({
 const emit = defineEmits<{ (e: "ready", map: mapboxgl.Map): void }>();
 
 const { $mapbox } = useNuxtApp();
+const mapContainer = ref<HTMLDivElement>();
 const map = ref<mapboxgl.Map>();
 const ready = ref(false);
-const mapContainer = ref<HTMLDivElement>();
+const isDragging = ref(false);
 
 onMounted(init);
 
 async function init() {
   if (!mapContainer.value) return;
 
-  map.value = $mapbox.createMap({
+  const _map = $mapbox.createMap({
     center: Store.position.position,
     zoom: 16,
     ...props.options,
     container: mapContainer.value,
   });
 
-  map.value.on("style.load", () => {
-    map.value!.touchZoomRotate.disableRotation();
+  _map.on("load", () => {
+    map.value = _map;
+    map.value.touchZoomRotate.disableRotation();
     ready.value = true;
     emit("ready", map.value!);
+
+    map.value!.on("drag", () => {
+      isDragging.value = true;
+    });
+    map.value!.on("dragend", () => {
+      isDragging.value = false;
+    });
   });
 }
 
@@ -40,9 +49,19 @@ defineExpose({ map });
   <div ref="mapContainer"></div>
 
   <div class="ui-map-bottom">
-    <div class="ui-map-bottom--container">
-      <slot name="bottom" :map="map" :ready="ready" />
-    </div>
+    <transition
+      appear
+      enter-active-class="animate__fadeInUp"
+      leave-active-class="animate__fadeOutDown"
+    >
+      <div
+        v-show="!isDragging"
+        class="animate__animated ui-map-bottom--container"
+        style="animation-duration: 0.25s"
+      >
+        <slot name="bottom" :map="map" :ready="ready" />
+      </div>
+    </transition>
   </div>
 </template>
 
