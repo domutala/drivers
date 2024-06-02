@@ -79,6 +79,28 @@ export class SessionService {
     };
   }
 
+  async logout(client: Socket) {
+    if (!client.request.session) {
+      throw "session.login.session_is_required";
+    }
+
+    if (!["expired", "closed"].includes(client.request.session.status)) {
+      const session = await this.sessionRepository._findOne({
+        id: client.request.session.id,
+      });
+      if (session) {
+        await this.sessionRepository._update({
+          id: session.id,
+          status: "closed",
+        });
+      } else {
+        throw "session.login.session_not_found";
+      }
+    }
+
+    return { status: "closed" };
+  }
+
   async resendCodeValidation(client: Socket, params: { phonenumber: string }) {
     if (!client.request.session) {
       throw "session.login.session_is_required";
